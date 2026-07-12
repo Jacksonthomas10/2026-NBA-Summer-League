@@ -1,143 +1,1762 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import * as d3 from "d3";
 import "./App.css";
+
+/* ---------------------------------------------------
+   TEAM AND CLUB PROFILES
+--------------------------------------------------- */
+
+const TEAM_PROFILES = {
+  ATL: {
+    name: "Atlanta Hawks",
+    type: "NBA",
+    needs: {
+      shooting: 0.18,
+      perimeterDefense: 0.22,
+      rimProtection: 0.16,
+      playmaking: 0.14,
+      rebounding: 0.12,
+      lowUsageImpact: 0.18,
+    },
+  },
+
+  BOS: {
+    name: "Boston Celtics",
+    type: "NBA",
+    needs: {
+      shooting: 0.2,
+      perimeterDefense: 0.18,
+      rimProtection: 0.12,
+      playmaking: 0.14,
+      rebounding: 0.12,
+      lowUsageImpact: 0.24,
+    },
+  },
+
+  BKN: {
+    name: "Brooklyn Nets",
+    type: "NBA",
+    needs: {
+      shooting: 0.16,
+      perimeterDefense: 0.17,
+      rimProtection: 0.15,
+      playmaking: 0.19,
+      rebounding: 0.12,
+      lowUsageImpact: 0.21,
+    },
+  },
+
+  CHA: {
+    name: "Charlotte Hornets",
+    type: "NBA",
+    needs: {
+      shooting: 0.18,
+      perimeterDefense: 0.2,
+      rimProtection: 0.16,
+      playmaking: 0.15,
+      rebounding: 0.13,
+      lowUsageImpact: 0.18,
+    },
+  },
+
+  CHI: {
+    name: "Chicago Bulls",
+    type: "NBA",
+    needs: {
+      shooting: 0.19,
+      perimeterDefense: 0.2,
+      rimProtection: 0.15,
+      playmaking: 0.16,
+      rebounding: 0.12,
+      lowUsageImpact: 0.18,
+    },
+  },
+
+  CLE: {
+    name: "Cleveland Cavaliers",
+    type: "NBA",
+    needs: {
+      shooting: 0.2,
+      perimeterDefense: 0.19,
+      rimProtection: 0.1,
+      playmaking: 0.14,
+      rebounding: 0.13,
+      lowUsageImpact: 0.24,
+    },
+  },
+
+  DAL: {
+    name: "Dallas Mavericks",
+    type: "NBA",
+    needs: {
+      shooting: 0.2,
+      perimeterDefense: 0.2,
+      rimProtection: 0.13,
+      playmaking: 0.16,
+      rebounding: 0.11,
+      lowUsageImpact: 0.2,
+    },
+  },
+
+  DEN: {
+    name: "Denver Nuggets",
+    type: "NBA",
+    needs: {
+      shooting: 0.22,
+      perimeterDefense: 0.17,
+      rimProtection: 0.1,
+      playmaking: 0.15,
+      rebounding: 0.12,
+      lowUsageImpact: 0.24,
+    },
+  },
+
+  DET: {
+    name: "Detroit Pistons",
+    type: "NBA",
+    needs: {
+      shooting: 0.22,
+      perimeterDefense: 0.18,
+      rimProtection: 0.12,
+      playmaking: 0.14,
+      rebounding: 0.13,
+      lowUsageImpact: 0.21,
+    },
+  },
+
+  GSW: {
+    name: "Golden State Warriors",
+    type: "NBA",
+    needs: {
+      shooting: 0.19,
+      perimeterDefense: 0.18,
+      rimProtection: 0.14,
+      playmaking: 0.17,
+      rebounding: 0.12,
+      lowUsageImpact: 0.2,
+    },
+  },
+
+  HOU: {
+    name: "Houston Rockets",
+    type: "NBA",
+    needs: {
+      shooting: 0.22,
+      perimeterDefense: 0.16,
+      rimProtection: 0.1,
+      playmaking: 0.17,
+      rebounding: 0.12,
+      lowUsageImpact: 0.23,
+    },
+  },
+
+  IND: {
+    name: "Indiana Pacers",
+    type: "NBA",
+    needs: {
+      shooting: 0.19,
+      perimeterDefense: 0.2,
+      rimProtection: 0.13,
+      playmaking: 0.15,
+      rebounding: 0.13,
+      lowUsageImpact: 0.2,
+    },
+  },
+
+  LAC: {
+    name: "Los Angeles Clippers",
+    type: "NBA",
+    needs: {
+      shooting: 0.2,
+      perimeterDefense: 0.18,
+      rimProtection: 0.12,
+      playmaking: 0.17,
+      rebounding: 0.11,
+      lowUsageImpact: 0.22,
+    },
+  },
+
+  LAL: {
+    name: "Los Angeles Lakers",
+    type: "NBA",
+    needs: {
+      shooting: 0.22,
+      perimeterDefense: 0.2,
+      rimProtection: 0.15,
+      playmaking: 0.14,
+      rebounding: 0.11,
+      lowUsageImpact: 0.18,
+    },
+  },
+
+  MEM: {
+    name: "Memphis Grizzlies",
+    type: "NBA",
+    needs: {
+      shooting: 0.2,
+      perimeterDefense: 0.18,
+      rimProtection: 0.12,
+      playmaking: 0.16,
+      rebounding: 0.13,
+      lowUsageImpact: 0.21,
+    },
+  },
+
+  MIA: {
+    name: "Miami Heat",
+    type: "NBA",
+    needs: {
+      shooting: 0.2,
+      perimeterDefense: 0.19,
+      rimProtection: 0.12,
+      playmaking: 0.15,
+      rebounding: 0.11,
+      lowUsageImpact: 0.23,
+    },
+  },
+
+  MIL: {
+    name: "Milwaukee Bucks",
+    type: "NBA",
+    needs: {
+      shooting: 0.21,
+      perimeterDefense: 0.2,
+      rimProtection: 0.11,
+      playmaking: 0.15,
+      rebounding: 0.11,
+      lowUsageImpact: 0.22,
+    },
+  },
+
+  MIN: {
+    name: "Minnesota Timberwolves",
+    type: "NBA",
+    needs: {
+      shooting: 0.21,
+      perimeterDefense: 0.16,
+      rimProtection: 0.1,
+      playmaking: 0.18,
+      rebounding: 0.12,
+      lowUsageImpact: 0.23,
+    },
+  },
+
+  NOP: {
+    name: "New Orleans Pelicans",
+    type: "NBA",
+    needs: {
+      shooting: 0.2,
+      perimeterDefense: 0.18,
+      rimProtection: 0.16,
+      playmaking: 0.15,
+      rebounding: 0.12,
+      lowUsageImpact: 0.19,
+    },
+  },
+
+  NYK: {
+    name: "New York Knicks",
+    type: "NBA",
+    needs: {
+      shooting: 0.2,
+      perimeterDefense: 0.18,
+      rimProtection: 0.11,
+      playmaking: 0.18,
+      rebounding: 0.12,
+      lowUsageImpact: 0.21,
+    },
+  },
+
+  OKC: {
+    name: "Oklahoma City Thunder",
+    type: "NBA",
+    needs: {
+      shooting: 0.18,
+      perimeterDefense: 0.16,
+      rimProtection: 0.11,
+      playmaking: 0.15,
+      rebounding: 0.14,
+      lowUsageImpact: 0.26,
+    },
+  },
+
+  ORL: {
+    name: "Orlando Magic",
+    type: "NBA",
+    needs: {
+      shooting: 0.26,
+      perimeterDefense: 0.15,
+      rimProtection: 0.1,
+      playmaking: 0.17,
+      rebounding: 0.11,
+      lowUsageImpact: 0.21,
+    },
+  },
+
+  PHI: {
+    name: "Philadelphia 76ers",
+    type: "NBA",
+    needs: {
+      shooting: 0.21,
+      perimeterDefense: 0.19,
+      rimProtection: 0.11,
+      playmaking: 0.16,
+      rebounding: 0.12,
+      lowUsageImpact: 0.21,
+    },
+  },
+
+  PHX: {
+    name: "Phoenix Suns",
+    type: "NBA",
+    needs: {
+      shooting: 0.18,
+      perimeterDefense: 0.21,
+      rimProtection: 0.16,
+      playmaking: 0.17,
+      rebounding: 0.12,
+      lowUsageImpact: 0.16,
+    },
+  },
+
+  POR: {
+    name: "Portland Trail Blazers",
+    type: "NBA",
+    needs: {
+      shooting: 0.21,
+      perimeterDefense: 0.17,
+      rimProtection: 0.11,
+      playmaking: 0.17,
+      rebounding: 0.13,
+      lowUsageImpact: 0.21,
+    },
+  },
+
+  SAC: {
+    name: "Sacramento Kings",
+    type: "NBA",
+    needs: {
+      shooting: 0.18,
+      perimeterDefense: 0.22,
+      rimProtection: 0.18,
+      playmaking: 0.15,
+      rebounding: 0.12,
+      lowUsageImpact: 0.15,
+    },
+  },
+
+  SAS: {
+    name: "San Antonio Spurs",
+    type: "NBA",
+    needs: {
+      shooting: 0.22,
+      perimeterDefense: 0.18,
+      rimProtection: 0.08,
+      playmaking: 0.17,
+      rebounding: 0.12,
+      lowUsageImpact: 0.23,
+    },
+  },
+
+  TOR: {
+    name: "Toronto Raptors",
+    type: "NBA",
+    needs: {
+      shooting: 0.21,
+      perimeterDefense: 0.17,
+      rimProtection: 0.15,
+      playmaking: 0.16,
+      rebounding: 0.12,
+      lowUsageImpact: 0.19,
+    },
+  },
+
+  UTA: {
+    name: "Utah Jazz",
+    type: "NBA",
+    needs: {
+      shooting: 0.18,
+      perimeterDefense: 0.2,
+      rimProtection: 0.13,
+      playmaking: 0.17,
+      rebounding: 0.12,
+      lowUsageImpact: 0.2,
+    },
+  },
+
+  WAS: {
+    name: "Washington Wizards",
+    type: "NBA",
+    needs: {
+      shooting: 0.18,
+      perimeterDefense: 0.18,
+      rimProtection: 0.15,
+      playmaking: 0.17,
+      rebounding: 0.13,
+      lowUsageImpact: 0.19,
+    },
+  },
+
+  TRI: {
+    name: "Pallacanestro Trieste",
+    type: "Lega Basket Serie A",
+    country: "Italy",
+    needs: {
+      shooting: 0.12,
+      perimeterDefense: 0.22,
+      rimProtection: 0.2,
+      playmaking: 0.17,
+      rebounding: 0.19,
+      lowUsageImpact: 0.1,
+    },
+  },
+};
+
+const NEED_LABELS = {
+  shooting: "Perimeter Shooting",
+  perimeterDefense: "Perimeter Defense",
+  rimProtection: "Rim Protection",
+  playmaking: "Secondary Playmaking",
+  rebounding: "Rebounding",
+  lowUsageImpact: "Low-Usage Impact",
+};
+
+/* ---------------------------------------------------
+   GENERAL HELPERS
+--------------------------------------------------- */
+
+const toNumber = (value) => {
+  if (
+    value === null ||
+    value === undefined ||
+    String(value).trim() === ""
+  ) {
+    return 0;
+  }
+
+  const parsed = Number(
+    String(value)
+      .replace(/%/g, "")
+      .replace(/,/g, "")
+      .trim()
+  );
+
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const normalizePercentage = (value) => {
+  const number = toNumber(value);
+
+  return number > 0 && number <= 1
+    ? number * 100
+    : number;
+};
+
+const formatNumber = (value, decimals = 1) => {
+  return toNumber(value).toFixed(decimals);
+};
+
+const formatPercentage = (value) => {
+  return `${normalizePercentage(value).toFixed(1)}%`;
+};
+
+const formatPlusMinus = (value) => {
+  const number = toNumber(value);
+
+  return number > 0
+    ? `+${number.toFixed(1)}`
+    : number.toFixed(1);
+};
+
+const clamp = (value, minimum, maximum) => {
+  return Math.min(
+    Math.max(value, minimum),
+    maximum
+  );
+};
+
+const getMedian = (values) => {
+  const sorted = values
+    .map(toNumber)
+    .sort((a, b) => a - b);
+
+  if (!sorted.length) {
+    return 0;
+  }
+
+  const middle = Math.floor(sorted.length / 2);
+
+  return sorted.length % 2 === 0
+    ? (sorted[middle - 1] + sorted[middle]) / 2
+    : sorted[middle];
+};
+
+const getPercentileRank = (value, values) => {
+  const numericValue = toNumber(value);
+  const validValues = values.map(toNumber);
+
+  if (!validValues.length) {
+    return 0;
+  }
+
+  const below = validValues.filter(
+    (item) => item < numericValue
+  ).length;
+
+  const equal = validValues.filter(
+    (item) => item === numericValue
+  ).length;
+
+  return (
+    (below + equal * 0.5) /
+    validValues.length
+  );
+};
+
+/* ---------------------------------------------------
+   TABLE COLUMNS
+--------------------------------------------------- */
+
+const BASE_COLUMNS = [
+  { key: "Rank", label: "Rank" },
+  { key: "Player", label: "Player" },
+  { key: "GP", label: "GP" },
+  { key: "MSR", label: "MSR" },
+  { key: "Min", label: "MIN" },
+  { key: "PTS", label: "PTS" },
+  { key: "FGM", label: "FGM" },
+  { key: "FGA", label: "FGA" },
+  { key: "FGPct", label: "FG%" },
+  { key: "ThreePTM", label: "3PM" },
+  { key: "ThreePA", label: "3PA" },
+  { key: "ThreePct", label: "3P%" },
+  { key: "FTM", label: "FTM" },
+  { key: "FTA", label: "FTA" },
+  { key: "FTPct", label: "FT%" },
+  { key: "OREB", label: "OREB" },
+  { key: "DREB", label: "DREB" },
+  { key: "REB", label: "REB" },
+  { key: "AST", label: "AST" },
+  { key: "TOV", label: "TOV" },
+  { key: "STL", label: "STL" },
+  { key: "BLK", label: "BLK" },
+  { key: "PF", label: "PF" },
+  { key: "PlusMinus", label: "+/-" },
+  {
+    key: "EuropeanArchetype",
+    label: "European Archetype",
+  },
+];
+
+const TEAM_FIT_COLUMNS = [
+  { key: "Rank", label: "Fit Rank" },
+  { key: "Player", label: "Player" },
+  { key: "TeamFitScore", label: "Team Fit" },
+  {
+    key: "TeamFitReasons",
+    label: "Best Fit Areas",
+  },
+  { key: "GP", label: "GP" },
+  { key: "MSR", label: "MSR" },
+  { key: "Min", label: "MIN" },
+  { key: "PTS", label: "PTS" },
+  { key: "FGM", label: "FGM" },
+  { key: "FGA", label: "FGA" },
+  { key: "FGPct", label: "FG%" },
+  { key: "ThreePTM", label: "3PM" },
+  { key: "ThreePA", label: "3PA" },
+  { key: "ThreePct", label: "3P%" },
+  { key: "FTM", label: "FTM" },
+  { key: "FTA", label: "FTA" },
+  { key: "FTPct", label: "FT%" },
+  { key: "OREB", label: "OREB" },
+  { key: "DREB", label: "DREB" },
+  { key: "REB", label: "REB" },
+  { key: "AST", label: "AST" },
+  { key: "TOV", label: "TOV" },
+  { key: "STL", label: "STL" },
+  { key: "BLK", label: "BLK" },
+  { key: "PF", label: "PF" },
+  { key: "PlusMinus", label: "+/-" },
+  {
+    key: "EuropeanArchetype",
+    label: "European Archetype",
+  },
+];
 
 function App() {
   const [playerData, setPlayerData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState("all");
+  const [selectedTeam, setSelectedTeam] =
+    useState("SAC");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   const [sortConfig, setSortConfig] = useState({
-    key: "MSR_Avg",
+    key: "MSR",
     direction: "desc",
   });
 
-  const csvUrl = process.env.PUBLIC_URL + "/stt_msr.csv";
+  const csvUrl =
+    `${process.env.PUBLIC_URL}/stt_msr.csv`;
 
-  /* ---------------------------------------------
-     LOAD DATA
-  --------------------------------------------- */
+  /* ---------------------------------------------------
+     LOAD CSV
+  --------------------------------------------------- */
+
   useEffect(() => {
-    d3.csv(csvUrl).then((data) => {
-      const cleaned = data.map((row) => ({
-        Name: row["Name"],
-        Games: Number(row["Games Played"]),
-        MSR: Number(row["MSR"]),
-        MSR_Avg: Number(row["MSR Avg"]),
-      }));
-      setPlayerData(cleaned);
-    });
+    let active = true;
+
+    const loadCsv = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data = await d3.csv(
+          `${csvUrl}?updated=${Date.now()}`
+        );
+
+        if (!active) {
+          return;
+        }
+
+        const cleaned = data
+          .filter(
+            (row) =>
+              row.Player &&
+              String(row.Player).trim() !== ""
+          )
+          .map((row, index) => ({
+            Rank:
+              toNumber(row.Rank) ||
+              toNumber(row["Column 25"]) ||
+              index + 1,
+
+            Player: String(row.Player).trim(),
+
+            GP: toNumber(row.GP),
+            MSR: toNumber(row.MSR),
+            Min: toNumber(row.Min),
+            PTS: toNumber(row.PTS),
+            FGM: toNumber(row.FGM),
+            FGA: toNumber(row.FGA),
+            FGPct: normalizePercentage(row["FG%"]),
+            ThreePTM: toNumber(row["3PTM"]),
+            ThreePA: toNumber(row["3PA"]),
+            ThreePct: normalizePercentage(
+              row["3P%"]
+            ),
+            FTM: toNumber(row.FTM),
+            FTA: toNumber(row.FTA),
+            FTPct: normalizePercentage(row["FT%"]),
+            OREB: toNumber(row.OREB),
+            DREB: toNumber(row.DREB),
+            REB: toNumber(row.REB),
+            AST: toNumber(row.AST),
+            TOV: toNumber(row.TOV),
+            STL: toNumber(row.STL),
+            BLK: toNumber(row.BLK),
+            PF: toNumber(row.PF),
+            PlusMinus: toNumber(
+              row["Plus Minus"]
+            ),
+
+            EuropeanArchetype:
+              String(
+                row["European Archetype"] || "—"
+              ).trim() || "—",
+          }));
+
+        setPlayerData(cleaned);
+      } catch (csvError) {
+        console.error(
+          "CSV loading error:",
+          csvError
+        );
+
+        if (active) {
+          setError(
+            "Unable to load stt_msr.csv. Confirm the file is in the public folder."
+          );
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadCsv();
+
+    return () => {
+      active = false;
+    };
   }, [csvUrl]);
 
-  /* ---------------------------------------------
-     SORTING LOGIC
-  --------------------------------------------- */
-  const handleSort = (key) => {
-    let direction = "asc";
+  /* ---------------------------------------------------
+     DATASET BENCHMARKS
+  --------------------------------------------------- */
 
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
+  const benchmarks = useMemo(() => {
+    return {
+      medianMSR: getMedian(
+        playerData.map(
+          (player) => player.MSR
+        )
+      ),
+
+      medianPTS: getMedian(
+        playerData.map(
+          (player) => player.PTS
+        )
+      ),
+
+      medianMin: getMedian(
+        playerData.map(
+          (player) => player.Min
+        )
+      ),
+
+      medianFGA: getMedian(
+        playerData.map(
+          (player) => player.FGA
+        )
+      ),
+    };
+  }, [playerData]);
+
+  /* ---------------------------------------------------
+     HIDDEN GEMS
+  --------------------------------------------------- */
+
+  const analyzedPlayers = useMemo(() => {
+    if (!playerData.length) {
+      return [];
     }
 
-    setSortConfig({ key, direction });
+    const msrValues = playerData.map(
+      (player) => player.MSR
+    );
+
+    const pointsValues = playerData.map(
+      (player) => player.PTS
+    );
+
+    const shotValues = playerData.map(
+      (player) => player.FGA
+    );
+
+    return playerData.map((player) => {
+      const msrPercentile =
+        getPercentileRank(
+          player.MSR,
+          msrValues
+        );
+
+      const scoringPercentile =
+        getPercentileRank(
+          player.PTS,
+          pointsValues
+        );
+
+      const shotVolumePercentile =
+        getPercentileRank(
+          player.FGA,
+          shotValues
+        );
+
+      const fieldGoalEfficiency =
+        player.FGA > 0
+          ? player.FGM / player.FGA
+          : 0;
+
+      const assistTurnoverRatio =
+        player.TOV > 0
+          ? player.AST / player.TOV
+          : player.AST;
+
+      const allAroundContribution =
+        player.REB * 0.8 +
+        player.AST * 1.1 +
+        player.STL * 2 +
+        player.BLK * 1.8 +
+        Math.max(
+          player.PlusMinus,
+          0
+        ) * 0.25;
+
+      const efficiencyAdjustment =
+        clamp(
+          (fieldGoalEfficiency - 0.4) * 40,
+          -5,
+          10
+        );
+
+      const playmakingAdjustment =
+        clamp(
+          assistTurnoverRatio * 2,
+          0,
+          8
+        );
+
+      const attentionGap =
+        msrPercentile -
+        scoringPercentile * 0.55 -
+        shotVolumePercentile * 0.25;
+
+      const hiddenGemScore =
+        attentionGap * 100 +
+        allAroundContribution +
+        efficiencyAdjustment +
+        playmakingAdjustment;
+
+      const minimumMinutes =
+        Math.max(
+          10,
+          benchmarks.medianMin * 0.65
+        );
+
+      return {
+        ...player,
+
+        HiddenGemScore:
+          hiddenGemScore,
+
+        IsHiddenGem:
+          player.GP >= 1 &&
+          player.Min >= minimumMinutes &&
+          player.MSR >=
+            benchmarks.medianMSR &&
+          (
+            player.PTS <=
+              benchmarks.medianPTS * 1.35 ||
+            player.FGA <=
+              benchmarks.medianFGA
+          ) &&
+          hiddenGemScore > 5,
+      };
+    });
+  }, [playerData, benchmarks]);
+
+  /* ---------------------------------------------------
+     TEAM AND CLUB FITS
+  --------------------------------------------------- */
+
+  const teamFitPlayers = useMemo(() => {
+    const profile =
+      TEAM_PROFILES[selectedTeam] ||
+      TEAM_PROFILES.SAC;
+
+    if (
+      !profile ||
+      !profile.needs ||
+      !analyzedPlayers.length
+    ) {
+      return [];
+    }
+
+    const dataset = {
+      MSR: analyzedPlayers.map(
+        (player) => player.MSR
+      ),
+
+      FGPct: analyzedPlayers.map(
+        (player) => player.FGPct
+      ),
+
+      ThreePct: analyzedPlayers.map(
+        (player) => player.ThreePct
+      ),
+
+      ThreePTM: analyzedPlayers.map(
+        (player) => player.ThreePTM
+      ),
+
+      AST: analyzedPlayers.map(
+        (player) => player.AST
+      ),
+
+      STL: analyzedPlayers.map(
+        (player) => player.STL
+      ),
+
+      BLK: analyzedPlayers.map(
+        (player) => player.BLK
+      ),
+
+      REB: analyzedPlayers.map(
+        (player) => player.REB
+      ),
+
+      PlusMinus: analyzedPlayers.map(
+        (player) => player.PlusMinus
+      ),
+
+      PTS: analyzedPlayers.map(
+        (player) => player.PTS
+      ),
+
+      FGA: analyzedPlayers.map(
+        (player) => player.FGA
+      ),
+    };
+
+    return analyzedPlayers
+      .map((player) => {
+        const shooting =
+          getPercentileRank(
+            player.ThreePct,
+            dataset.ThreePct
+          ) * 0.45 +
+          getPercentileRank(
+            player.ThreePTM,
+            dataset.ThreePTM
+          ) * 0.35 +
+          getPercentileRank(
+            player.FGPct,
+            dataset.FGPct
+          ) * 0.2;
+
+        const perimeterDefense =
+          getPercentileRank(
+            player.STL,
+            dataset.STL
+          ) * 0.6 +
+          getPercentileRank(
+            player.PlusMinus,
+            dataset.PlusMinus
+          ) * 0.4;
+
+        const rimProtection =
+          getPercentileRank(
+            player.BLK,
+            dataset.BLK
+          ) * 0.65 +
+          getPercentileRank(
+            player.REB,
+            dataset.REB
+          ) * 0.35;
+
+        const assistTurnoverRatio =
+          player.TOV > 0
+            ? player.AST / player.TOV
+            : player.AST;
+
+        const playmaking =
+          getPercentileRank(
+            player.AST,
+            dataset.AST
+          ) * 0.65 +
+          Math.min(
+            assistTurnoverRatio / 4,
+            1
+          ) * 0.35;
+
+        const rebounding =
+          getPercentileRank(
+            player.REB,
+            dataset.REB
+          );
+
+        const impactPercentile =
+          getPercentileRank(
+            player.MSR,
+            dataset.MSR
+          );
+
+        const scoringPercentile =
+          getPercentileRank(
+            player.PTS,
+            dataset.PTS
+          );
+
+        const shotVolumePercentile =
+          getPercentileRank(
+            player.FGA,
+            dataset.FGA
+          );
+
+        const lowUsageImpact =
+          Math.max(
+            0,
+            impactPercentile -
+              scoringPercentile * 0.35 -
+              shotVolumePercentile * 0.25
+          );
+
+        const categoryScores = {
+          shooting,
+          perimeterDefense,
+          rimProtection,
+          playmaking,
+          rebounding,
+          lowUsageImpact,
+        };
+
+        const teamFitScore =
+          Object.entries(
+            profile.needs
+          ).reduce(
+            (
+              total,
+              [needKey, weight]
+            ) => {
+              return (
+                total +
+                (
+                  categoryScores[
+                    needKey
+                  ] || 0
+                ) *
+                  toNumber(weight)
+              );
+            },
+            0
+          );
+
+        const reasons =
+          Object.entries(
+            categoryScores
+          )
+            .map(
+              ([needKey, score]) => ({
+                label:
+                  NEED_LABELS[
+                    needKey
+                  ] || needKey,
+
+                weightedScore:
+                  score *
+                  toNumber(
+                    profile.needs[
+                      needKey
+                    ]
+                  ),
+              })
+            )
+            .sort(
+              (a, b) =>
+                b.weightedScore -
+                a.weightedScore
+            )
+            .slice(0, 2)
+            .map(
+              (item) => item.label
+            );
+
+        return {
+          ...player,
+
+          TeamFitScore:
+            teamFitScore * 100,
+
+          TeamFitReasons:
+            reasons,
+        };
+      })
+      .sort(
+        (a, b) =>
+          b.TeamFitScore -
+          a.TeamFitScore
+      );
+  }, [
+    analyzedPlayers,
+    selectedTeam,
+  ]);
+
+  /* ---------------------------------------------------
+     VIEW AND SORT CONTROLS
+  --------------------------------------------------- */
+
+  const handleViewChange = (
+    nextView
+  ) => {
+    setViewMode(nextView);
+    setSearchTerm("");
+
+    setSortConfig({
+      key:
+        nextView === "hidden"
+          ? "HiddenGemScore"
+          : nextView === "teamFit"
+          ? "TeamFitScore"
+          : "MSR",
+
+      direction: "desc",
+    });
   };
 
-  const sortedData = [...playerData].sort((a, b) => {
-    const aVal = a[sortConfig.key];
-    const bVal = b[sortConfig.key];
+  const handleSort = (key) => {
+    setSortConfig(
+      (currentSort) => {
+        if (
+          currentSort.key === key
+        ) {
+          return {
+            key,
 
-    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-    return 0;
-  });
+            direction:
+              currentSort.direction ===
+              "asc"
+                ? "desc"
+                : "asc",
+          };
+        }
 
-  const filteredData = sortedData.filter((player) =>
-    player.Name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+        const textColumn =
+          key === "Player" ||
+          key ===
+            "EuropeanArchetype" ||
+          key ===
+            "TeamFitReasons";
 
-  /* ---------------------------------------------
-     COLOR CODING FOR MSR AVG
-  --------------------------------------------- */
+        return {
+          key,
+          direction:
+            textColumn
+              ? "asc"
+              : "desc",
+        };
+      }
+    );
+  };
+
+  const displayedData = useMemo(() => {
+    let data =
+      viewMode === "teamFit"
+        ? teamFitPlayers.slice(0, 30)
+        : viewMode === "hidden"
+        ? analyzedPlayers
+            .filter(
+              (player) =>
+                player.IsHiddenGem
+            )
+            .sort(
+              (a, b) =>
+                b.HiddenGemScore -
+                a.HiddenGemScore
+            )
+            .slice(0, 25)
+        : [...analyzedPlayers];
+
+    const normalizedSearch =
+      searchTerm
+        .trim()
+        .toLowerCase();
+
+    data = data.filter(
+      (player) =>
+        player.Player
+          .toLowerCase()
+          .includes(
+            normalizedSearch
+          ) ||
+        player.EuropeanArchetype
+          .toLowerCase()
+          .includes(
+            normalizedSearch
+          )
+    );
+
+    return [...data].sort(
+      (a, b) => {
+        const aValue =
+          a[sortConfig.key];
+
+        const bValue =
+          b[sortConfig.key];
+
+        if (
+          Array.isArray(aValue) ||
+          Array.isArray(bValue)
+        ) {
+          const comparison =
+            String(
+              Array.isArray(aValue)
+                ? aValue.join(" ")
+                : aValue || ""
+            ).localeCompare(
+              String(
+                Array.isArray(bValue)
+                  ? bValue.join(" ")
+                  : bValue || ""
+              )
+            );
+
+          return sortConfig.direction ===
+            "asc"
+            ? comparison
+            : comparison * -1;
+        }
+
+        if (
+          typeof aValue === "string" ||
+          typeof bValue === "string"
+        ) {
+          const comparison =
+            String(
+              aValue || ""
+            ).localeCompare(
+              String(
+                bValue || ""
+              ),
+              undefined,
+              {
+                sensitivity: "base",
+              }
+            );
+
+          return sortConfig.direction ===
+            "asc"
+            ? comparison
+            : comparison * -1;
+        }
+
+        return sortConfig.direction ===
+          "asc"
+          ? toNumber(aValue) -
+              toNumber(bValue)
+          : toNumber(bValue) -
+              toNumber(aValue);
+      }
+    );
+  }, [
+    analyzedPlayers,
+    teamFitPlayers,
+    viewMode,
+    searchTerm,
+    sortConfig,
+  ]);
+
+  const visibleColumns =
+    viewMode === "teamFit"
+      ? TEAM_FIT_COLUMNS
+      : BASE_COLUMNS;
+
+  /* ---------------------------------------------------
+     DISPLAY HELPERS
+  --------------------------------------------------- */
+
+  const getSortIndicator = (key) => {
+    if (
+      sortConfig.key !== key
+    ) {
+      return "";
+    }
+
+    return sortConfig.direction ===
+      "asc"
+      ? " ▲"
+      : " ▼";
+  };
+
   const getMSRClass = (value) => {
-    if (value > 20) return "msr-high";
-    if (value >= 10) return "msr-mid";
-    return "msr-low";
+    if (value >= 35) {
+      return "msr-elite";
+    }
+
+    if (value >= 15) {
+      return "msr-strong";
+    }
+
+    return "msr-emerging";
   };
+
+  const getFitClass = (value) => {
+    if (value >= 75) {
+      return "fit-elite";
+    }
+
+    if (value >= 60) {
+      return "fit-strong";
+    }
+
+    return "fit-developmental";
+  };
+
+  const getHeaderClass = (key) => {
+    const classes = [];
+
+    if (key === "Player") {
+      classes.push(
+        "player-column"
+      );
+    }
+
+    if (key === "MSR") {
+      classes.push(
+        "msr-column"
+      );
+    }
+
+    if (
+      key === "TeamFitScore"
+    ) {
+      classes.push(
+        "team-fit-column"
+      );
+    }
+
+    if (
+      key ===
+      "TeamFitReasons"
+    ) {
+      classes.push(
+        "fit-reasons-column"
+      );
+    }
+
+    if (
+      key ===
+      "EuropeanArchetype"
+    ) {
+      classes.push(
+        "archetype-column"
+      );
+    }
+
+    return classes.join(" ");
+  };
+
+  const getCellClass = (
+    player,
+    key
+  ) => {
+    const classes = [];
+
+    if (key === "Player") {
+      classes.push(
+        "player-column"
+      );
+    }
+
+    if (key === "MSR") {
+      classes.push(
+        "msr-column",
+        getMSRClass(
+          player.MSR
+        )
+      );
+    }
+
+    if (
+      key === "TeamFitScore"
+    ) {
+      classes.push(
+        "team-fit-column",
+        getFitClass(
+          player.TeamFitScore
+        )
+      );
+    }
+
+    if (
+      key ===
+      "TeamFitReasons"
+    ) {
+      classes.push(
+        "fit-reasons-column"
+      );
+    }
+
+    if (
+      key ===
+      "EuropeanArchetype"
+    ) {
+      classes.push(
+        "archetype-column"
+      );
+    }
+
+    if (
+      key === "PlusMinus"
+    ) {
+      if (
+        player.PlusMinus > 0
+      ) {
+        classes.push(
+          "positive-value"
+        );
+      } else if (
+        player.PlusMinus < 0
+      ) {
+        classes.push(
+          "negative-value"
+        );
+      }
+    }
+
+    return classes.join(" ");
+  };
+
+  const renderCell = (
+    player,
+    key,
+    index
+  ) => {
+    switch (key) {
+      case "Rank":
+        return viewMode === "all"
+          ? player.Rank
+          : index + 1;
+
+      case "Player":
+        return player.Player;
+
+      case "GP":
+        return player.GP;
+
+      case "MSR":
+        return formatNumber(
+          player.MSR,
+          2
+        );
+
+      case "TeamFitScore":
+        return `${formatNumber(
+          player.TeamFitScore,
+          0
+        )}/100`;
+
+      case "TeamFitReasons":
+        return player
+          .TeamFitReasons
+          .join(" • ");
+
+      case "FGPct":
+      case "ThreePct":
+      case "FTPct":
+        return formatPercentage(
+          player[key]
+        );
+
+      case "PlusMinus":
+        return formatPlusMinus(
+          player.PlusMinus
+        );
+
+      case "EuropeanArchetype":
+        return (
+          player.EuropeanArchetype ||
+          "—"
+        );
+
+      default:
+        return formatNumber(
+          player[key],
+          1
+        );
+    }
+  };
+
+  const selectedProfile =
+    TEAM_PROFILES[selectedTeam] ||
+    TEAM_PROFILES.SAC;
+
+  const selectedTeamName =
+    selectedProfile.name;
+
+  const selectedTeamType =
+    selectedProfile.type || "Team";
+
+  /* ---------------------------------------------------
+     RENDER
+  --------------------------------------------------- */
 
   return (
-    <div className="app-container">
-      <header className="app-header">St. T’s MSR Leaderboard</header>
+    <div className="app-container fade-in">
+      <header className="app-header">
+        NBA Summer League MSR Leaderboard
+      </header>
 
-      {/* Search */}
-      <input
-        type="text"
-        className="search-bar"
-        placeholder="Search players..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-
-      {/* ---------- DESKTOP TABLE ---------- */}
-      <div className="table-container">
-        <table className="leaderboard-table">
-          <thead>
-            <tr>
-              <th onClick={() => handleSort("Name")}>
-                Name {sortConfig.key === "Name" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
-              </th>
-              <th onClick={() => handleSort("Games")}>
-                Games {sortConfig.key === "Games" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
-              </th>
-              <th onClick={() => handleSort("MSR")}>
-                MSR {sortConfig.key === "MSR" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
-              </th>
-              <th onClick={() => handleSort("MSR_Avg")}>
-                MSR Avg {sortConfig.key === "MSR_Avg" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {filteredData.map((player, idx) => (
-              <tr key={idx}>
-                <td>{player.Name}</td>
-                <td>{player.Games}</td>
-                <td>{player.MSR.toFixed(2)}</td>
-                <td className={getMSRClass(player.MSR_Avg)}>
-                  {player.MSR_Avg.toFixed(2)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="brand-subtitle">
+        Modern Skill Rating
       </div>
 
-      {/* ---------- MOBILE CARD VIEW ---------- */}
-      <div className="mobile-only">
-        <div className="mobile-sort-bar">
-          <button onClick={() => handleSort("Name")}>
-            Name {sortConfig.key === "Name" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+      <div className="top-controls">
+        <div className="search-count-row">
+          <input
+            type="text"
+            className="search-bar"
+            placeholder="Search player or archetype..."
+            value={searchTerm}
+            onChange={(event) =>
+              setSearchTerm(
+                event.target.value
+              )
+            }
+          />
+
+          <div className="player-count">
+            {displayedData.length}{" "}
+            {displayedData.length === 1
+              ? "player"
+              : "players"}
+          </div>
+        </div>
+
+        <div className="view-toggle">
+          <button
+            type="button"
+            className={
+              viewMode === "all"
+                ? "view-button active"
+                : "view-button"
+            }
+            onClick={() =>
+              handleViewChange(
+                "all"
+              )
+            }
+          >
+            All Players
           </button>
-          <button onClick={() => handleSort("MSR_Avg")}>
-            MSR Avg {sortConfig.key === "MSR_Avg" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+
+          <button
+            type="button"
+            className={
+              viewMode === "hidden"
+                ? "view-button active"
+                : "view-button"
+            }
+            onClick={() =>
+              handleViewChange(
+                "hidden"
+              )
+            }
+          >
+            💎 Hidden Gems
+          </button>
+
+          <button
+            type="button"
+            className={
+              viewMode === "teamFit"
+                ? "view-button active"
+                : "view-button"
+            }
+            onClick={() =>
+              handleViewChange(
+                "teamFit"
+              )
+            }
+          >
+            🏀 Team & Club Fits
           </button>
         </div>
 
-        {filteredData.map((player, idx) => (
-          <div className="mobile-card" key={idx}>
-            <div className="mobile-name">{player.Name}</div>
-            <div className="mobile-stat">Games: {player.Games}</div>
-            <div className="mobile-stat">MSR: {player.MSR.toFixed(2)}</div>
-            <div className={`mobile-stat ${getMSRClass(player.MSR_Avg)}`}>
-              MSR Avg: {player.MSR_Avg.toFixed(2)}
-            </div>
+        {viewMode === "teamFit" && (
+          <div className="team-selector">
+            <label
+              className="team-selector-label"
+              htmlFor="team-select"
+            >
+              Select Team or Club
+            </label>
+
+            <select
+              id="team-select"
+              className="team-select"
+              value={selectedTeam}
+              onChange={(event) => {
+                setSelectedTeam(
+                  event.target.value
+                );
+
+                setSortConfig({
+                  key: "TeamFitScore",
+                  direction: "desc",
+                });
+              }}
+            >
+              <optgroup label="NBA Teams">
+                {Object.entries(
+                  TEAM_PROFILES
+                )
+                  .filter(
+                    ([, team]) =>
+                      team.type === "NBA"
+                  )
+                  .sort(
+                    (
+                      [, teamA],
+                      [, teamB]
+                    ) =>
+                      teamA.name.localeCompare(
+                        teamB.name
+                      )
+                  )
+                  .map(
+                    ([
+                      teamCode,
+                      team,
+                    ]) => (
+                      <option
+                        key={teamCode}
+                        value={teamCode}
+                      >
+                        {team.name}
+                      </option>
+                    )
+                  )}
+              </optgroup>
+
+              <optgroup label="International Clubs">
+                {Object.entries(
+                  TEAM_PROFILES
+                )
+                  .filter(
+                    ([, team]) =>
+                      team.type !== "NBA"
+                  )
+                  .sort(
+                    (
+                      [, teamA],
+                      [, teamB]
+                    ) =>
+                      teamA.name.localeCompare(
+                        teamB.name
+                      )
+                  )
+                  .map(
+                    ([
+                      teamCode,
+                      team,
+                    ]) => (
+                      <option
+                        key={teamCode}
+                        value={teamCode}
+                      >
+                        {team.name}
+                      </option>
+                    )
+                  )}
+              </optgroup>
+            </select>
           </div>
-        ))}
+        )}
       </div>
+
+      {viewMode === "hidden" && (
+        <div className="view-description">
+          Under-the-radar players whose overall
+          statistical profiles may deserve more
+          attention than their scoring volume
+          alone suggests.
+        </div>
+      )}
+
+      {viewMode === "teamFit" && (
+        <div className="view-description">
+          Ranking players by how closely their
+          statistical profiles align with{" "}
+          <strong>
+            {selectedTeamName}
+          </strong>{" "}
+          roster priorities for{" "}
+          {selectedTeamType}. Basketball fit
+          does not imply that a player is
+          available, unsigned, or obtainable.
+        </div>
+      )}
+
+      {loading && (
+        <div className="status-message">
+          Loading leaderboard...
+        </div>
+      )}
+
+      {error && (
+        <div className="status-message error-message">
+          {error}
+        </div>
+      )}
+
+      {!loading &&
+        !error &&
+        displayedData.length === 0 && (
+          <div className="status-message">
+            No qualifying players found.
+          </div>
+        )}
+
+      {!loading &&
+        !error &&
+        displayedData.length > 0 && (
+          <div className="table-container">
+            <table className="leaderboard-table">
+              <thead>
+                <tr>
+                  {visibleColumns.map(
+                    (column) => (
+                      <th
+                        key={column.key}
+                        className={getHeaderClass(
+                          column.key
+                        )}
+                        onClick={() =>
+                          handleSort(
+                            column.key
+                          )
+                        }
+                      >
+                        {column.label}
+                        {getSortIndicator(
+                          column.key
+                        )}
+                      </th>
+                    )
+                  )}
+                </tr>
+              </thead>
+
+              <tbody>
+                {displayedData.map(
+                  (
+                    player,
+                    playerIndex
+                  ) => (
+                    <tr
+                      key={`${player.Player}-${player.Rank}`}
+                      className={
+                        viewMode === "hidden"
+                          ? "hidden-gem-row"
+                          : viewMode ===
+                            "teamFit"
+                          ? "team-fit-row"
+                          : ""
+                      }
+                    >
+                      {visibleColumns.map(
+                        (column) => (
+                          <td
+                            key={`${player.Player}-${column.key}`}
+                            className={getCellClass(
+                              player,
+                              column.key
+                            )}
+                          >
+                            {renderCell(
+                              player,
+                              column.key,
+                              playerIndex
+                            )}
+                          </td>
+                        )
+                      )}
+                    </tr>
+                  )
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
     </div>
   );
 }
 
 export default App;
-
 
 
 
