@@ -3,413 +3,140 @@ import * as d3 from "d3";
 import "./App.css";
 
 /* ---------------------------------------------------
-   TEAM AND CLUB PROFILES
+   TEAM PROFILE HELPER
+--------------------------------------------------- */
+
+const createTeamProfile = (
+  name,
+  shooting,
+  perimeterDefense,
+  rimProtection,
+  playmaking,
+  rebounding,
+  lowUsageImpact,
+  type = "NBA"
+) => ({
+  name,
+  type,
+  needs: {
+    shooting,
+    perimeterDefense,
+    rimProtection,
+    playmaking,
+    rebounding,
+    lowUsageImpact,
+  },
+});
+
+/* ---------------------------------------------------
+   NBA AND INTERNATIONAL CLUB PROFILES
 --------------------------------------------------- */
 
 const TEAM_PROFILES = {
-  ATL: {
-    name: "Atlanta Hawks",
-    type: "NBA",
-    needs: {
-      shooting: 0.18,
-      perimeterDefense: 0.22,
-      rimProtection: 0.16,
-      playmaking: 0.14,
-      rebounding: 0.12,
-      lowUsageImpact: 0.18,
-    },
-  },
-
-  BOS: {
-    name: "Boston Celtics",
-    type: "NBA",
-    needs: {
-      shooting: 0.2,
-      perimeterDefense: 0.18,
-      rimProtection: 0.12,
-      playmaking: 0.14,
-      rebounding: 0.12,
-      lowUsageImpact: 0.24,
-    },
-  },
-
-  BKN: {
-    name: "Brooklyn Nets",
-    type: "NBA",
-    needs: {
-      shooting: 0.16,
-      perimeterDefense: 0.17,
-      rimProtection: 0.15,
-      playmaking: 0.19,
-      rebounding: 0.12,
-      lowUsageImpact: 0.21,
-    },
-  },
-
-  CHA: {
-    name: "Charlotte Hornets",
-    type: "NBA",
-    needs: {
-      shooting: 0.18,
-      perimeterDefense: 0.2,
-      rimProtection: 0.16,
-      playmaking: 0.15,
-      rebounding: 0.13,
-      lowUsageImpact: 0.18,
-    },
-  },
-
-  CHI: {
-    name: "Chicago Bulls",
-    type: "NBA",
-    needs: {
-      shooting: 0.19,
-      perimeterDefense: 0.2,
-      rimProtection: 0.15,
-      playmaking: 0.16,
-      rebounding: 0.12,
-      lowUsageImpact: 0.18,
-    },
-  },
-
-  CLE: {
-    name: "Cleveland Cavaliers",
-    type: "NBA",
-    needs: {
-      shooting: 0.2,
-      perimeterDefense: 0.19,
-      rimProtection: 0.1,
-      playmaking: 0.14,
-      rebounding: 0.13,
-      lowUsageImpact: 0.24,
-    },
-  },
-
-  DAL: {
-    name: "Dallas Mavericks",
-    type: "NBA",
-    needs: {
-      shooting: 0.2,
-      perimeterDefense: 0.2,
-      rimProtection: 0.13,
-      playmaking: 0.16,
-      rebounding: 0.11,
-      lowUsageImpact: 0.2,
-    },
-  },
-
-  DEN: {
-    name: "Denver Nuggets",
-    type: "NBA",
-    needs: {
-      shooting: 0.22,
-      perimeterDefense: 0.17,
-      rimProtection: 0.1,
-      playmaking: 0.15,
-      rebounding: 0.12,
-      lowUsageImpact: 0.24,
-    },
-  },
-
-  DET: {
-    name: "Detroit Pistons",
-    type: "NBA",
-    needs: {
-      shooting: 0.22,
-      perimeterDefense: 0.18,
-      rimProtection: 0.12,
-      playmaking: 0.14,
-      rebounding: 0.13,
-      lowUsageImpact: 0.21,
-    },
-  },
-
-  GSW: {
-    name: "Golden State Warriors",
-    type: "NBA",
-    needs: {
-      shooting: 0.19,
-      perimeterDefense: 0.18,
-      rimProtection: 0.14,
-      playmaking: 0.17,
-      rebounding: 0.12,
-      lowUsageImpact: 0.2,
-    },
-  },
-
-  HOU: {
-    name: "Houston Rockets",
-    type: "NBA",
-    needs: {
-      shooting: 0.22,
-      perimeterDefense: 0.16,
-      rimProtection: 0.1,
-      playmaking: 0.17,
-      rebounding: 0.12,
-      lowUsageImpact: 0.23,
-    },
-  },
-
-  IND: {
-    name: "Indiana Pacers",
-    type: "NBA",
-    needs: {
-      shooting: 0.19,
-      perimeterDefense: 0.2,
-      rimProtection: 0.13,
-      playmaking: 0.15,
-      rebounding: 0.13,
-      lowUsageImpact: 0.2,
-    },
-  },
-
-  LAC: {
-    name: "Los Angeles Clippers",
-    type: "NBA",
-    needs: {
-      shooting: 0.2,
-      perimeterDefense: 0.18,
-      rimProtection: 0.12,
-      playmaking: 0.17,
-      rebounding: 0.11,
-      lowUsageImpact: 0.22,
-    },
-  },
-
-  LAL: {
-    name: "Los Angeles Lakers",
-    type: "NBA",
-    needs: {
-      shooting: 0.22,
-      perimeterDefense: 0.2,
-      rimProtection: 0.15,
-      playmaking: 0.14,
-      rebounding: 0.11,
-      lowUsageImpact: 0.18,
-    },
-  },
-
-  MEM: {
-    name: "Memphis Grizzlies",
-    type: "NBA",
-    needs: {
-      shooting: 0.2,
-      perimeterDefense: 0.18,
-      rimProtection: 0.12,
-      playmaking: 0.16,
-      rebounding: 0.13,
-      lowUsageImpact: 0.21,
-    },
-  },
-
-  MIA: {
-    name: "Miami Heat",
-    type: "NBA",
-    needs: {
-      shooting: 0.2,
-      perimeterDefense: 0.19,
-      rimProtection: 0.12,
-      playmaking: 0.15,
-      rebounding: 0.11,
-      lowUsageImpact: 0.23,
-    },
-  },
-
-  MIL: {
-    name: "Milwaukee Bucks",
-    type: "NBA",
-    needs: {
-      shooting: 0.21,
-      perimeterDefense: 0.2,
-      rimProtection: 0.11,
-      playmaking: 0.15,
-      rebounding: 0.11,
-      lowUsageImpact: 0.22,
-    },
-  },
-
-  MIN: {
-    name: "Minnesota Timberwolves",
-    type: "NBA",
-    needs: {
-      shooting: 0.21,
-      perimeterDefense: 0.16,
-      rimProtection: 0.1,
-      playmaking: 0.18,
-      rebounding: 0.12,
-      lowUsageImpact: 0.23,
-    },
-  },
-
-  NOP: {
-    name: "New Orleans Pelicans",
-    type: "NBA",
-    needs: {
-      shooting: 0.2,
-      perimeterDefense: 0.18,
-      rimProtection: 0.16,
-      playmaking: 0.15,
-      rebounding: 0.12,
-      lowUsageImpact: 0.19,
-    },
-  },
-
-  NYK: {
-    name: "New York Knicks",
-    type: "NBA",
-    needs: {
-      shooting: 0.2,
-      perimeterDefense: 0.18,
-      rimProtection: 0.11,
-      playmaking: 0.18,
-      rebounding: 0.12,
-      lowUsageImpact: 0.21,
-    },
-  },
-
-  OKC: {
-    name: "Oklahoma City Thunder",
-    type: "NBA",
-    needs: {
-      shooting: 0.18,
-      perimeterDefense: 0.16,
-      rimProtection: 0.11,
-      playmaking: 0.15,
-      rebounding: 0.14,
-      lowUsageImpact: 0.26,
-    },
-  },
-
-  ORL: {
-    name: "Orlando Magic",
-    type: "NBA",
-    needs: {
-      shooting: 0.26,
-      perimeterDefense: 0.15,
-      rimProtection: 0.1,
-      playmaking: 0.17,
-      rebounding: 0.11,
-      lowUsageImpact: 0.21,
-    },
-  },
-
-  PHI: {
-    name: "Philadelphia 76ers",
-    type: "NBA",
-    needs: {
-      shooting: 0.21,
-      perimeterDefense: 0.19,
-      rimProtection: 0.11,
-      playmaking: 0.16,
-      rebounding: 0.12,
-      lowUsageImpact: 0.21,
-    },
-  },
-
-  PHX: {
-    name: "Phoenix Suns",
-    type: "NBA",
-    needs: {
-      shooting: 0.18,
-      perimeterDefense: 0.21,
-      rimProtection: 0.16,
-      playmaking: 0.17,
-      rebounding: 0.12,
-      lowUsageImpact: 0.16,
-    },
-  },
-
-  POR: {
-    name: "Portland Trail Blazers",
-    type: "NBA",
-    needs: {
-      shooting: 0.21,
-      perimeterDefense: 0.17,
-      rimProtection: 0.11,
-      playmaking: 0.17,
-      rebounding: 0.13,
-      lowUsageImpact: 0.21,
-    },
-  },
-
-  SAC: {
-    name: "Sacramento Kings",
-    type: "NBA",
-    needs: {
-      shooting: 0.18,
-      perimeterDefense: 0.22,
-      rimProtection: 0.18,
-      playmaking: 0.15,
-      rebounding: 0.12,
-      lowUsageImpact: 0.15,
-    },
-  },
-
-  SAS: {
-    name: "San Antonio Spurs",
-    type: "NBA",
-    needs: {
-      shooting: 0.22,
-      perimeterDefense: 0.18,
-      rimProtection: 0.08,
-      playmaking: 0.17,
-      rebounding: 0.12,
-      lowUsageImpact: 0.23,
-    },
-  },
-
-  TOR: {
-    name: "Toronto Raptors",
-    type: "NBA",
-    needs: {
-      shooting: 0.21,
-      perimeterDefense: 0.17,
-      rimProtection: 0.15,
-      playmaking: 0.16,
-      rebounding: 0.12,
-      lowUsageImpact: 0.19,
-    },
-  },
-
-  UTA: {
-    name: "Utah Jazz",
-    type: "NBA",
-    needs: {
-      shooting: 0.18,
-      perimeterDefense: 0.2,
-      rimProtection: 0.13,
-      playmaking: 0.17,
-      rebounding: 0.12,
-      lowUsageImpact: 0.2,
-    },
-  },
-
-  WAS: {
-    name: "Washington Wizards",
-    type: "NBA",
-    needs: {
-      shooting: 0.18,
-      perimeterDefense: 0.18,
-      rimProtection: 0.15,
-      playmaking: 0.17,
-      rebounding: 0.13,
-      lowUsageImpact: 0.19,
-    },
-  },
-
-  TRI: {
-    name: "Pallacanestro Trieste",
-    type: "Lega Basket Serie A",
-    country: "Italy",
-    needs: {
-      shooting: 0.12,
-      perimeterDefense: 0.22,
-      rimProtection: 0.2,
-      playmaking: 0.17,
-      rebounding: 0.19,
-      lowUsageImpact: 0.1,
-    },
-  },
+  ATL: createTeamProfile("Atlanta Hawks", 0.18, 0.22, 0.16, 0.14, 0.12, 0.18),
+  BOS: createTeamProfile("Boston Celtics", 0.2, 0.18, 0.12, 0.14, 0.12, 0.24),
+  BKN: createTeamProfile("Brooklyn Nets", 0.16, 0.17, 0.15, 0.19, 0.12, 0.21),
+  CHA: createTeamProfile("Charlotte Hornets", 0.18, 0.2, 0.16, 0.15, 0.13, 0.18),
+  CHI: createTeamProfile("Chicago Bulls", 0.19, 0.2, 0.15, 0.16, 0.12, 0.18),
+  CLE: createTeamProfile("Cleveland Cavaliers", 0.2, 0.19, 0.1, 0.14, 0.13, 0.24),
+  DAL: createTeamProfile("Dallas Mavericks", 0.2, 0.2, 0.13, 0.16, 0.11, 0.2),
+  DEN: createTeamProfile("Denver Nuggets", 0.22, 0.17, 0.1, 0.15, 0.12, 0.24),
+  DET: createTeamProfile("Detroit Pistons", 0.22, 0.18, 0.12, 0.14, 0.13, 0.21),
+  GSW: createTeamProfile(
+    "Golden State Warriors",
+    0.19,
+    0.18,
+    0.14,
+    0.17,
+    0.12,
+    0.2
+  ),
+  HOU: createTeamProfile("Houston Rockets", 0.22, 0.16, 0.1, 0.17, 0.12, 0.23),
+  IND: createTeamProfile("Indiana Pacers", 0.19, 0.2, 0.13, 0.15, 0.13, 0.2),
+  LAC: createTeamProfile(
+    "Los Angeles Clippers",
+    0.2,
+    0.18,
+    0.12,
+    0.17,
+    0.11,
+    0.22
+  ),
+  LAL: createTeamProfile("Los Angeles Lakers", 0.22, 0.2, 0.15, 0.14, 0.11, 0.18),
+  MEM: createTeamProfile("Memphis Grizzlies", 0.2, 0.18, 0.12, 0.16, 0.13, 0.21),
+  MIA: createTeamProfile("Miami Heat", 0.2, 0.19, 0.12, 0.15, 0.11, 0.23),
+  MIL: createTeamProfile("Milwaukee Bucks", 0.21, 0.2, 0.11, 0.15, 0.11, 0.22),
+  MIN: createTeamProfile(
+    "Minnesota Timberwolves",
+    0.21,
+    0.16,
+    0.1,
+    0.18,
+    0.12,
+    0.23
+  ),
+  NOP: createTeamProfile(
+    "New Orleans Pelicans",
+    0.2,
+    0.18,
+    0.16,
+    0.15,
+    0.12,
+    0.19
+  ),
+  NYK: createTeamProfile("New York Knicks", 0.2, 0.18, 0.11, 0.18, 0.12, 0.21),
+  OKC: createTeamProfile(
+    "Oklahoma City Thunder",
+    0.18,
+    0.16,
+    0.11,
+    0.15,
+    0.14,
+    0.26
+  ),
+  ORL: createTeamProfile("Orlando Magic", 0.26, 0.15, 0.1, 0.17, 0.11, 0.21),
+  PHI: createTeamProfile(
+    "Philadelphia 76ers",
+    0.21,
+    0.19,
+    0.11,
+    0.16,
+    0.12,
+    0.21
+  ),
+  PHX: createTeamProfile("Phoenix Suns", 0.18, 0.21, 0.16, 0.17, 0.12, 0.16),
+  POR: createTeamProfile(
+    "Portland Trail Blazers",
+    0.21,
+    0.17,
+    0.11,
+    0.17,
+    0.13,
+    0.21
+  ),
+  SAC: createTeamProfile("Sacramento Kings", 0.18, 0.22, 0.18, 0.15, 0.12, 0.15),
+  SAS: createTeamProfile("San Antonio Spurs", 0.22, 0.18, 0.08, 0.17, 0.12, 0.23),
+  TOR: createTeamProfile("Toronto Raptors", 0.21, 0.17, 0.15, 0.16, 0.12, 0.19),
+  UTA: createTeamProfile("Utah Jazz", 0.18, 0.2, 0.13, 0.17, 0.12, 0.2),
+  WAS: createTeamProfile(
+    "Washington Wizards",
+    0.18,
+    0.18,
+    0.15,
+    0.17,
+    0.13,
+    0.19
+  ),
+  TRI: createTeamProfile(
+    "Pallacanestro Trieste",
+    0.12,
+    0.22,
+    0.2,
+    0.17,
+    0.19,
+    0.1,
+    "Lega Basket Serie A"
+  ),
 };
 
 const NEED_LABELS = {
@@ -434,14 +161,30 @@ const toNumber = (value) => {
     return 0;
   }
 
-  const parsed = Number(
+  const parsedValue = Number(
     String(value)
       .replace(/%/g, "")
       .replace(/,/g, "")
       .trim()
   );
 
-  return Number.isFinite(parsed) ? parsed : 0;
+  return Number.isFinite(parsedValue) ? parsedValue : 0;
+};
+
+const firstExistingValue = (row, columnNames) => {
+  for (const columnName of columnNames) {
+    const value = row[columnName];
+
+    if (
+      value !== undefined &&
+      value !== null &&
+      String(value).trim() !== ""
+    ) {
+      return value;
+    }
+  }
+
+  return undefined;
 };
 
 const normalizePercentage = (value) => {
@@ -476,41 +219,50 @@ const clamp = (value, minimum, maximum) => {
 };
 
 const getMedian = (values) => {
-  const sorted = values
+  const sortedValues = values
     .map(toNumber)
+    .filter(Number.isFinite)
     .sort((a, b) => a - b);
 
-  if (!sorted.length) {
+  if (!sortedValues.length) {
     return 0;
   }
 
-  const middle = Math.floor(sorted.length / 2);
+  const middle = Math.floor(
+    sortedValues.length / 2
+  );
 
-  return sorted.length % 2 === 0
-    ? (sorted[middle - 1] + sorted[middle]) / 2
-    : sorted[middle];
+  return sortedValues.length % 2 === 0
+    ? (
+        sortedValues[middle - 1] +
+        sortedValues[middle]
+      ) / 2
+    : sortedValues[middle];
 };
 
 const getPercentileRank = (value, values) => {
   const numericValue = toNumber(value);
-  const validValues = values.map(toNumber);
+
+  const validValues = values
+    .map(toNumber)
+    .filter(Number.isFinite);
 
   if (!validValues.length) {
     return 0;
   }
 
-  const below = validValues.filter(
+  const belowCount = validValues.filter(
     (item) => item < numericValue
   ).length;
 
-  const equal = validValues.filter(
+  const equalCount = validValues.filter(
     (item) => item === numericValue
   ).length;
 
   return (
-    (below + equal * 0.5) /
-    validValues.length
-  );
+    belowCount +
+    equalCount * 0.5
+  ) / validValues.length;
 };
 
 /* ---------------------------------------------------
@@ -521,7 +273,8 @@ const BASE_COLUMNS = [
   { key: "Rank", label: "Rank" },
   { key: "Player", label: "Player" },
   { key: "GP", label: "GP" },
-  { key: "MSR", label: "MSR" },
+  { key: "MSR", label: "MSR Total" },
+  { key: "MSRAvg", label: "MSR AVG" },
   { key: "Min", label: "MIN" },
   { key: "PTS", label: "PTS" },
   { key: "FGM", label: "FGM" },
@@ -557,7 +310,8 @@ const TEAM_FIT_COLUMNS = [
     label: "Best Fit Areas",
   },
   { key: "GP", label: "GP" },
-  { key: "MSR", label: "MSR" },
+  { key: "MSR", label: "MSR Total" },
+  { key: "MSRAvg", label: "MSR AVG" },
   { key: "Min", label: "MIN" },
   { key: "PTS", label: "PTS" },
   { key: "FGM", label: "FGM" },
@@ -585,21 +339,55 @@ const TEAM_FIT_COLUMNS = [
 ];
 
 function App() {
-  const [playerData, setPlayerData] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [viewMode, setViewMode] = useState("all");
+  const [playerData, setPlayerData] =
+    useState([]);
+
+  const [searchTerm, setSearchTerm] =
+    useState("");
+
+  const [viewMode, setViewMode] =
+    useState("all");
+
   const [selectedTeam, setSelectedTeam] =
     useState("SAC");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  const [sortConfig, setSortConfig] = useState({
-    key: "MSR",
-    direction: "desc",
-  });
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  const [sortConfig, setSortConfig] =
+    useState({
+      key: "MSRAvg",
+      direction: "desc",
+    });
 
   const csvUrl =
     `${process.env.PUBLIC_URL}/stt_msr.csv`;
+
+  /* ---------------------------------------------------
+     LOCAL DEVELOPMENT URL
+  --------------------------------------------------- */
+
+  useEffect(() => {
+    const desiredPath =
+      "/2026-NBA-Summer-League";
+
+    const currentPath =
+      window.location.pathname.replace(
+        /\/+$/,
+        ""
+      );
+
+    if (currentPath !== desiredPath) {
+      window.history.replaceState(
+        {},
+        "",
+        desiredPath
+      );
+    }
+  }, []);
 
   /* ---------------------------------------------------
      LOAD CSV
@@ -621,54 +409,152 @@ function App() {
           return;
         }
 
-        const cleaned = data
-          .filter(
-            (row) =>
-              row.Player &&
-              String(row.Player).trim() !== ""
-          )
-          .map((row, index) => ({
-            Rank:
-              toNumber(row.Rank) ||
-              toNumber(row["Column 25"]) ||
-              index + 1,
+        const cleanedData = data
+          .filter((row) => {
+            const playerName =
+              row.Player ||
+              row.Name;
 
-            Player: String(row.Player).trim(),
+            return (
+              playerName &&
+              String(playerName).trim() !== ""
+            );
+          })
+          .map((row, index) => {
+            const playerName =
+              row.Player ||
+              row.Name ||
+              "";
 
-            GP: toNumber(row.GP),
-            MSR: toNumber(row.MSR),
-            Min: toNumber(row.Min),
-            PTS: toNumber(row.PTS),
-            FGM: toNumber(row.FGM),
-            FGA: toNumber(row.FGA),
-            FGPct: normalizePercentage(row["FG%"]),
-            ThreePTM: toNumber(row["3PTM"]),
-            ThreePA: toNumber(row["3PA"]),
-            ThreePct: normalizePercentage(
-              row["3P%"]
-            ),
-            FTM: toNumber(row.FTM),
-            FTA: toNumber(row.FTA),
-            FTPct: normalizePercentage(row["FT%"]),
-            OREB: toNumber(row.OREB),
-            DREB: toNumber(row.DREB),
-            REB: toNumber(row.REB),
-            AST: toNumber(row.AST),
-            TOV: toNumber(row.TOV),
-            STL: toNumber(row.STL),
-            BLK: toNumber(row.BLK),
-            PF: toNumber(row.PF),
-            PlusMinus: toNumber(
-              row["Plus Minus"]
-            ),
+            const gamesPlayed = toNumber(
+              firstExistingValue(row, [
+                "GP",
+                "Games",
+                "Games Played",
+              ])
+            );
 
-            EuropeanArchetype:
-              String(
-                row["European Archetype"] || "—"
-              ).trim() || "—",
-          }));
+            const msrTotal = toNumber(
+              firstExistingValue(row, [
+                "MSR",
+                "MSR Total",
+              ])
+            );
 
-        setPlayerData(cleaned);
+            const csvMSRAvg =
+              firstExistingValue(row, [
+                "MSR AVG",
+                "MSR Avg",
+                "MSR_AVG",
+                "MSR Average",
+                "MSRAvg",
+              ]);
+
+            const calculatedMSRAvg =
+              gamesPlayed > 0
+                ? msrTotal / gamesPlayed
+                : 0;
+
+            const msrAverage =
+              csvMSRAvg !== undefined
+                ? toNumber(csvMSRAvg)
+                : calculatedMSRAvg;
+
+            return {
+              Rank:
+                toNumber(row.Rank) ||
+                toNumber(row["Column 25"]) ||
+                index + 1,
+
+              Player:
+                String(playerName).trim(),
+
+              GP: gamesPlayed,
+              MSR: msrTotal,
+              MSRAvg: msrAverage,
+
+              Min: toNumber(
+                firstExistingValue(row, [
+                  "Min",
+                  "MIN",
+                  "Minutes",
+                ])
+              ),
+
+              PTS: toNumber(row.PTS),
+              FGM: toNumber(row.FGM),
+              FGA: toNumber(row.FGA),
+
+              FGPct: normalizePercentage(
+                firstExistingValue(row, [
+                  "FG%",
+                  "FGPct",
+                  "FG Pct",
+                ])
+              ),
+
+              ThreePTM: toNumber(
+                firstExistingValue(row, [
+                  "3PTM",
+                  "3PM",
+                ])
+              ),
+
+              ThreePA: toNumber(
+                firstExistingValue(row, [
+                  "3PA",
+                  "3PTA",
+                ])
+              ),
+
+              ThreePct:
+                normalizePercentage(
+                  firstExistingValue(row, [
+                    "3P%",
+                    "3PT%",
+                    "ThreePct",
+                  ])
+                ),
+
+              FTM: toNumber(row.FTM),
+              FTA: toNumber(row.FTA),
+
+              FTPct: normalizePercentage(
+                firstExistingValue(row, [
+                  "FT%",
+                  "FTPct",
+                  "FT Pct",
+                ])
+              ),
+
+              OREB: toNumber(row.OREB),
+              DREB: toNumber(row.DREB),
+              REB: toNumber(row.REB),
+              AST: toNumber(row.AST),
+              TOV: toNumber(row.TOV),
+              STL: toNumber(row.STL),
+              BLK: toNumber(row.BLK),
+              PF: toNumber(row.PF),
+
+              PlusMinus: toNumber(
+                firstExistingValue(row, [
+                  "Plus Minus",
+                  "+/-",
+                  "PlusMinus",
+                ])
+              ),
+
+              EuropeanArchetype:
+                String(
+                  firstExistingValue(row, [
+                    "European Archetype",
+                    "Archetype",
+                  ]) || "—"
+                ).trim() || "—",
+            };
+          });
+
+        setPlayerData(cleanedData);
       } catch (csvError) {
         console.error(
           "CSV loading error:",
@@ -677,7 +563,7 @@ function App() {
 
         if (active) {
           setError(
-            "Unable to load stt_msr.csv. Confirm the file is in the public folder."
+            "Unable to load stt_msr.csv. Confirm that the file is inside the public folder and named exactly stt_msr.csv."
           );
         }
       } finally {
@@ -698,11 +584,11 @@ function App() {
      DATASET BENCHMARKS
   --------------------------------------------------- */
 
-  const benchmarks = useMemo(() => {
-    return {
-      medianMSR: getMedian(
+  const benchmarks = useMemo(
+    () => ({
+      medianMSRAvg: getMedian(
         playerData.map(
-          (player) => player.MSR
+          (player) => player.MSRAvg
         )
       ),
 
@@ -723,8 +609,9 @@ function App() {
           (player) => player.FGA
         )
       ),
-    };
-  }, [playerData]);
+    }),
+    [playerData]
+  );
 
   /* ---------------------------------------------------
      HIDDEN GEMS
@@ -735,23 +622,26 @@ function App() {
       return [];
     }
 
-    const msrValues = playerData.map(
-      (player) => player.MSR
-    );
+    const msrAverageValues =
+      playerData.map(
+        (player) => player.MSRAvg
+      );
 
-    const pointsValues = playerData.map(
-      (player) => player.PTS
-    );
+    const pointsValues =
+      playerData.map(
+        (player) => player.PTS
+      );
 
-    const shotValues = playerData.map(
-      (player) => player.FGA
-    );
+    const shotValues =
+      playerData.map(
+        (player) => player.FGA
+      );
 
     return playerData.map((player) => {
       const msrPercentile =
         getPercentileRank(
-          player.MSR,
-          msrValues
+          player.MSRAvg,
+          msrAverageValues
         );
 
       const scoringPercentile =
@@ -788,7 +678,10 @@ function App() {
 
       const efficiencyAdjustment =
         clamp(
-          (fieldGoalEfficiency - 0.4) * 40,
+          (
+            fieldGoalEfficiency -
+            0.4
+          ) * 40,
           -5,
           10
         );
@@ -826,18 +719,22 @@ function App() {
         IsHiddenGem:
           player.GP >= 1 &&
           player.Min >= minimumMinutes &&
-          player.MSR >=
-            benchmarks.medianMSR &&
+          player.MSRAvg >=
+            benchmarks.medianMSRAvg &&
           (
             player.PTS <=
-              benchmarks.medianPTS * 1.35 ||
+              benchmarks.medianPTS *
+                1.35 ||
             player.FGA <=
               benchmarks.medianFGA
           ) &&
           hiddenGemScore > 5,
       };
     });
-  }, [playerData, benchmarks]);
+  }, [
+    playerData,
+    benchmarks,
+  ]);
 
   /* ---------------------------------------------------
      TEAM AND CLUB FITS
@@ -857,8 +754,8 @@ function App() {
     }
 
     const dataset = {
-      MSR: analyzedPlayers.map(
-        (player) => player.MSR
+      MSRAvg: analyzedPlayers.map(
+        (player) => player.MSRAvg
       ),
 
       FGPct: analyzedPlayers.map(
@@ -961,8 +858,8 @@ function App() {
 
         const impactPercentile =
           getPercentileRank(
-            player.MSR,
-            dataset.MSR
+            player.MSRAvg,
+            dataset.MSRAvg
           );
 
         const scoringPercentile =
@@ -1001,26 +898,26 @@ function App() {
             (
               total,
               [needKey, weight]
-            ) => {
-              return (
-                total +
-                (
-                  categoryScores[
-                    needKey
-                  ] || 0
-                ) *
-                  toNumber(weight)
-              );
-            },
+            ) =>
+              total +
+              (
+                categoryScores[
+                  needKey
+                ] || 0
+              ) *
+                toNumber(weight),
             0
           );
 
-        const reasons =
+        const teamFitReasons =
           Object.entries(
             categoryScores
           )
             .map(
-              ([needKey, score]) => ({
+              ([
+                needKey,
+                score,
+              ]) => ({
                 label:
                   NEED_LABELS[
                     needKey
@@ -1052,7 +949,7 @@ function App() {
             teamFitScore * 100,
 
           TeamFitReasons:
-            reasons,
+            teamFitReasons,
         };
       })
       .sort(
@@ -1066,7 +963,7 @@ function App() {
   ]);
 
   /* ---------------------------------------------------
-     VIEW AND SORT CONTROLS
+     VIEW CONTROLS
   --------------------------------------------------- */
 
   const handleViewChange = (
@@ -1081,7 +978,7 @@ function App() {
           ? "HiddenGemScore"
           : nextView === "teamFit"
           ? "TeamFitScore"
-          : "MSR",
+          : "MSRAvg",
 
       direction: "desc",
     });
@@ -1104,7 +1001,7 @@ function App() {
           };
         }
 
-        const textColumn =
+        const isTextColumn =
           key === "Player" ||
           key ===
             "EuropeanArchetype" ||
@@ -1113,8 +1010,9 @@ function App() {
 
         return {
           key,
+
           direction:
-            textColumn
+            isTextColumn
               ? "asc"
               : "desc",
         };
@@ -1122,44 +1020,55 @@ function App() {
     );
   };
 
+  /* ---------------------------------------------------
+     FILTER AND SORT DISPLAY DATA
+  --------------------------------------------------- */
+
   const displayedData = useMemo(() => {
-    let data =
-      viewMode === "teamFit"
-        ? teamFitPlayers.slice(0, 30)
-        : viewMode === "hidden"
-        ? analyzedPlayers
-            .filter(
-              (player) =>
-                player.IsHiddenGem
-            )
-            .sort(
-              (a, b) =>
-                b.HiddenGemScore -
-                a.HiddenGemScore
-            )
-            .slice(0, 25)
-        : [...analyzedPlayers];
+    let data;
+
+    if (viewMode === "teamFit") {
+      data =
+        teamFitPlayers.slice(0, 30);
+    } else if (
+      viewMode === "hidden"
+    ) {
+      data = analyzedPlayers
+        .filter(
+          (player) =>
+            player.IsHiddenGem
+        )
+        .sort(
+          (a, b) =>
+            b.HiddenGemScore -
+            a.HiddenGemScore
+        )
+        .slice(0, 25);
+    } else {
+      data = [...analyzedPlayers];
+    }
 
     const normalizedSearch =
       searchTerm
         .trim()
         .toLowerCase();
 
-    data = data.filter(
-      (player) =>
-        player.Player
-          .toLowerCase()
-          .includes(
-            normalizedSearch
-          ) ||
-        player.EuropeanArchetype
-          .toLowerCase()
-          .includes(
-            normalizedSearch
-          )
-    );
+    const searchResults =
+      data.filter(
+        (player) =>
+          player.Player
+            .toLowerCase()
+            .includes(
+              normalizedSearch
+            ) ||
+          player.EuropeanArchetype
+            .toLowerCase()
+            .includes(
+              normalizedSearch
+            )
+      );
 
-    return [...data].sort(
+    return [...searchResults].sort(
       (a, b) => {
         const aValue =
           a[sortConfig.key];
@@ -1238,7 +1147,9 @@ function App() {
      DISPLAY HELPERS
   --------------------------------------------------- */
 
-  const getSortIndicator = (key) => {
+  const getSortIndicator = (
+    key
+  ) => {
     if (
       sortConfig.key !== key
     ) {
@@ -1251,7 +1162,9 @@ function App() {
       : " ▼";
   };
 
-  const getMSRClass = (value) => {
+  const getMSRClass = (
+    value
+  ) => {
     if (value >= 35) {
       return "msr-elite";
     }
@@ -1263,7 +1176,23 @@ function App() {
     return "msr-emerging";
   };
 
-  const getFitClass = (value) => {
+  const getMSRAvgClass = (
+    value
+  ) => {
+    if (value >= 20) {
+      return "msr-elite";
+    }
+
+    if (value >= 12) {
+      return "msr-strong";
+    }
+
+    return "msr-emerging";
+  };
+
+  const getFitClass = (
+    value
+  ) => {
     if (value >= 75) {
       return "fit-elite";
     }
@@ -1275,7 +1204,9 @@ function App() {
     return "fit-developmental";
   };
 
-  const getHeaderClass = (key) => {
+  const getHeaderClass = (
+    key
+  ) => {
     const classes = [];
 
     if (key === "Player") {
@@ -1287,6 +1218,12 @@ function App() {
     if (key === "MSR") {
       classes.push(
         "msr-column"
+      );
+    }
+
+    if (key === "MSRAvg") {
+      classes.push(
+        "msr-avg-column"
       );
     }
 
@@ -1336,6 +1273,15 @@ function App() {
         "msr-column",
         getMSRClass(
           player.MSR
+        )
+      );
+    }
+
+    if (key === "MSRAvg") {
+      classes.push(
+        "msr-avg-column",
+        getMSRAvgClass(
+          player.MSRAvg
         )
       );
     }
@@ -1413,6 +1359,12 @@ function App() {
           2
         );
 
+      case "MSRAvg":
+        return formatNumber(
+          player.MSRAvg,
+          2
+        );
+
       case "TeamFitScore":
         return `${formatNumber(
           player.TeamFitScore,
@@ -1422,7 +1374,7 @@ function App() {
       case "TeamFitReasons":
         return player
           .TeamFitReasons
-          .join(" • ");
+          ?.join(" • ") || "—";
 
       case "FGPct":
       case "ThreePct":
@@ -1451,14 +1403,15 @@ function App() {
   };
 
   const selectedProfile =
-    TEAM_PROFILES[selectedTeam] ||
-    TEAM_PROFILES.SAC;
+    TEAM_PROFILES[
+      selectedTeam
+    ] || TEAM_PROFILES.SAC;
 
   const selectedTeamName =
     selectedProfile.name;
 
   const selectedTeamType =
-    selectedProfile.type || "Team";
+    selectedProfile.type;
 
   /* ---------------------------------------------------
      RENDER
@@ -1546,7 +1499,8 @@ function App() {
           </button>
         </div>
 
-        {viewMode === "teamFit" && (
+        {viewMode ===
+          "teamFit" && (
           <div className="team-selector">
             <label
               className="team-selector-label"
@@ -1576,7 +1530,8 @@ function App() {
                 )
                   .filter(
                     ([, team]) =>
-                      team.type === "NBA"
+                      team.type ===
+                      "NBA"
                   )
                   .sort(
                     (
@@ -1593,8 +1548,12 @@ function App() {
                       team,
                     ]) => (
                       <option
-                        key={teamCode}
-                        value={teamCode}
+                        key={
+                          teamCode
+                        }
+                        value={
+                          teamCode
+                        }
                       >
                         {team.name}
                       </option>
@@ -1608,7 +1567,8 @@ function App() {
                 )
                   .filter(
                     ([, team]) =>
-                      team.type !== "NBA"
+                      team.type !==
+                      "NBA"
                   )
                   .sort(
                     (
@@ -1625,8 +1585,12 @@ function App() {
                       team,
                     ]) => (
                       <option
-                        key={teamCode}
-                        value={teamCode}
+                        key={
+                          teamCode
+                        }
+                        value={
+                          teamCode
+                        }
                       >
                         {team.name}
                       </option>
@@ -1638,19 +1602,23 @@ function App() {
         )}
       </div>
 
-      {viewMode === "hidden" && (
+      {viewMode ===
+        "hidden" && (
         <div className="view-description">
-          Under-the-radar players whose overall
-          statistical profiles may deserve more
-          attention than their scoring volume
-          alone suggests.
+          Under-the-radar players whose
+          average overall statistical
+          profiles may deserve more
+          attention than their scoring
+          volume alone suggests.
         </div>
       )}
 
-      {viewMode === "teamFit" && (
+      {viewMode ===
+        "teamFit" && (
         <div className="view-description">
-          Ranking players by how closely their
-          statistical profiles align with{" "}
+          Ranking players by how closely
+          their statistical profiles align
+          with{" "}
           <strong>
             {selectedTeamName}
           </strong>{" "}
@@ -1675,7 +1643,8 @@ function App() {
 
       {!loading &&
         !error &&
-        displayedData.length === 0 && (
+        displayedData.length ===
+          0 && (
           <div className="status-message">
             No qualifying players found.
           </div>
@@ -1683,7 +1652,8 @@ function App() {
 
       {!loading &&
         !error &&
-        displayedData.length > 0 && (
+        displayedData.length >
+          0 && (
           <div className="table-container">
             <table className="leaderboard-table">
               <thead>
@@ -1691,7 +1661,9 @@ function App() {
                   {visibleColumns.map(
                     (column) => (
                       <th
-                        key={column.key}
+                        key={
+                          column.key
+                        }
                         className={getHeaderClass(
                           column.key
                         )}
@@ -1720,7 +1692,8 @@ function App() {
                     <tr
                       key={`${player.Player}-${player.Rank}`}
                       className={
-                        viewMode === "hidden"
+                        viewMode ===
+                        "hidden"
                           ? "hidden-gem-row"
                           : viewMode ===
                             "teamFit"

@@ -118,13 +118,20 @@ select {
       rgba(255, 255, 255, 0.03),
     0 6px 18px
       rgba(0, 0, 0, 0.2);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .search-bar:focus {
   border-color: #667c9b;
+  background: #1a2637;
   box-shadow:
     0 0 0 3px
-      rgba(102, 124, 155, 0.16);
+      rgba(102, 124, 155, 0.16),
+    0 6px 20px
+      rgba(0, 0, 0, 0.24);
 }
 
 .search-bar::placeholder {
@@ -143,6 +150,9 @@ select {
   font-size: 0.9rem;
   font-weight: 700;
   white-space: nowrap;
+  box-shadow:
+    0 4px 14px
+      rgba(0, 0, 0, 0.2);
 }
 
 /* ---------------------------------------------------
@@ -167,6 +177,9 @@ select {
   font-weight: 800;
   cursor: pointer;
   white-space: nowrap;
+  box-shadow:
+    0 4px 14px
+      rgba(0, 0, 0, 0.16);
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
@@ -186,6 +199,11 @@ select {
   background:
     rgba(85, 214, 154, 0.12);
   color: #55d69a;
+  box-shadow:
+    0 0 0 1px
+      rgba(85, 214, 154, 0.08),
+    0 6px 18px
+      rgba(0, 0, 0, 0.2);
 }
 
 /* ---------------------------------------------------
@@ -220,6 +238,9 @@ select {
   color: #f4f7fb;
   font-weight: 700;
   cursor: pointer;
+  box-shadow:
+    0 4px 14px
+      rgba(0, 0, 0, 0.18);
 }
 
 .team-select:focus {
@@ -229,7 +250,8 @@ select {
       rgba(85, 214, 154, 0.12);
 }
 
-.team-select option {
+.team-select option,
+.team-select optgroup {
   background: #172131;
   color: #f4f7fb;
 }
@@ -249,6 +271,13 @@ select {
   font-size: 0.86rem;
   line-height: 1.45;
   text-align: center;
+  box-shadow:
+    0 5px 18px
+      rgba(0, 0, 0, 0.14);
+}
+
+.view-description strong {
+  color: #e6edf6;
 }
 
 /* ---------------------------------------------------
@@ -264,6 +293,9 @@ select {
   background: #151f2d;
   color: #b8c3d2;
   font-weight: 600;
+  box-shadow:
+    0 8px 22px
+      rgba(0, 0, 0, 0.22);
 }
 
 .error-message {
@@ -282,15 +314,19 @@ select {
   margin: 0 auto;
   padding-bottom: 10px;
   overflow-x: auto;
+  overflow-y: visible;
   border: 1px solid #283345;
   border-radius: 12px;
   background: #111926;
   box-shadow:
     0 18px 45px
-      rgba(0, 0, 0, 0.28);
+      rgba(0, 0, 0, 0.28),
+    inset 0 1px 0
+      rgba(255, 255, 255, 0.02);
   scrollbar-color:
     #44536a #151e2b;
   scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ---------------------------------------------------
@@ -302,8 +338,18 @@ select {
   margin: 0;
   border-collapse: separate;
   border-spacing: 0;
+  table-layout: auto;
   background: #111926;
   white-space: nowrap;
+}
+
+/* ---------------------------------------------------
+   TABLE HEADER
+--------------------------------------------------- */
+.leaderboard-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
 
 .leaderboard-table th {
@@ -322,6 +368,10 @@ select {
   text-align: center;
   cursor: pointer;
   user-select: none;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .leaderboard-table th:hover {
@@ -329,6 +379,13 @@ select {
   color: #ffffff;
 }
 
+.leaderboard-table th:last-child {
+  border-right: none;
+}
+
+/* ---------------------------------------------------
+   TABLE BODY
+--------------------------------------------------- */
 .leaderboard-table td {
   padding: 10px 12px;
   border-right:
@@ -339,6 +396,7 @@ select {
   color: #d9e0e9;
   font-size: 0.78rem;
   text-align: center;
+  white-space: nowrap;
 }
 
 .leaderboard-table tbody tr:nth-child(even) td {
@@ -347,6 +405,14 @@ select {
 
 .leaderboard-table tbody tr:hover td {
   background: #1b2738;
+}
+
+.leaderboard-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.leaderboard-table td:last-child {
+  border-right: none;
 }
 
 /* ---------------------------------------------------
@@ -361,6 +427,10 @@ select {
     );
 }
 
+.hidden-gem-row:hover td {
+  background: #1c2d37 !important;
+}
+
 .team-fit-row td {
   background-image:
     linear-gradient(
@@ -368,6 +438,10 @@ select {
       rgba(85, 150, 214, 0.025),
       transparent
     );
+}
+
+.team-fit-row:hover td {
+  background: #1a2938 !important;
 }
 
 /* ---------------------------------------------------
@@ -386,8 +460,37 @@ select {
 }
 
 .msr-column {
-  width: 76px;
-  min-width: 76px;
+  width: 88px;
+  min-width: 88px;
+  font-weight: 900;
+}
+
+/* New MSR AVG column */
+.msr-avg-column {
+  width: 92px;
+  min-width: 92px;
+  font-weight: 900;
+}
+
+/* Highlight the MSR AVG header as the primary ranking metric */
+.leaderboard-table th.msr-avg-column {
+  background:
+    linear-gradient(
+      180deg,
+      #203b38 0%,
+      #1d302f 100%
+    );
+  color: #7be0b0;
+}
+
+.leaderboard-table th.msr-avg-column:hover {
+  background:
+    linear-gradient(
+      180deg,
+      #294a45 0%,
+      #243a38 100%
+    );
+  color: #a0f0c8;
 }
 
 .team-fit-column {
@@ -437,6 +540,10 @@ select {
   background: #141d2a;
 }
 
+.leaderboard-table tbody tr:hover td:first-child {
+  background: #1b2738;
+}
+
 /* ---------------------------------------------------
    STICKY PLAYER
 --------------------------------------------------- */
@@ -460,8 +567,14 @@ select {
   font-weight: 800;
 }
 
-.leaderboard-table tbody tr:nth-child(even) td.player-column {
+.leaderboard-table tbody tr:nth-child(even)
+  td.player-column {
   background: #141d2a;
+}
+
+.leaderboard-table tbody tr:hover
+  td.player-column {
+  background: #1b2738;
 }
 
 /* ---------------------------------------------------
@@ -484,14 +597,17 @@ select {
 
 .fit-elite {
   color: #53d69a !important;
+  font-weight: 900;
 }
 
 .fit-strong {
   color: #f0c44f !important;
+  font-weight: 800;
 }
 
 .fit-developmental {
   color: #9aa8ba !important;
+  font-weight: 700;
 }
 
 .positive-value {
@@ -527,7 +643,7 @@ select {
 }
 
 /* ---------------------------------------------------
-   MOBILE
+   MOBILE / TABLET
 --------------------------------------------------- */
 @media (max-width: 850px) {
   .search-count-row {
@@ -552,6 +668,11 @@ select {
     font-size: 1.5rem;
   }
 
+  .brand-subtitle {
+    margin-bottom: 14px;
+    font-size: 0.7rem;
+  }
+
   .view-toggle {
     flex-direction: column;
     align-items: center;
@@ -567,6 +688,10 @@ select {
     gap: 7px;
   }
 
+  .team-select {
+    width: 100%;
+  }
+
   .table-container,
   .view-description {
     width: calc(100vw - 20px);
@@ -574,7 +699,7 @@ select {
   }
 
   .leaderboard-table {
-    min-width: 1900px;
+    min-width: 2000px;
   }
 
   .leaderboard-table th,
@@ -594,6 +719,25 @@ select {
     left: 54px;
     width: 155px;
     min-width: 155px;
+  }
+
+  .msr-column {
+    width: 78px;
+    min-width: 78px;
+  }
+
+  .msr-avg-column {
+    width: 82px;
+    min-width: 82px;
+  }
+
+  .fit-reasons-column {
+    width: 240px;
+    min-width: 240px;
+  }
+
+  .archetype-column {
+    min-width: 170px;
   }
 }
 
