@@ -1,8 +1,8 @@
 {
-  "name": "stts-msr-cyo-2025",
+  "name": "2026-nba-summer-league",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://jacksonthomas10.github.io/StTs-MSR-CYO-2025",
+  "homepage": "https://jacksonthomas10.github.io/2026-NBA-Summer-League",
   "dependencies": {
     "d3": "^7.8.5",
     "react": "^18.2.0",
