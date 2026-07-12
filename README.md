@@ -1,9 +1,4 @@
-# 🏀 St. T’s MSR Leaderboard — CYO 2025
-Modern Skill Rating (MSR) tracking system for the **St. T’s CYO Basketball Program (2025 season)**.
-
-This project provides a simple, transparent, and team-centered way to measure complete player contributions beyond scoring — including effort, efficiency, rebounding, playmaking, defense, and overall impact on winning.
-
-The leaderboard updates from a CSV dataset and displays a clean, mobile-friendly UI designed for players and families to follow along throughout the season.
+# 🏀NBA Summer League 2026 
 
 ---
 
