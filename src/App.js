@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import "./App.css";
 
 /* ---------------------------------------------------
-   TEAM PROFILE HELPER
+   TEAM PROFILES
 --------------------------------------------------- */
 
 const createTeamProfile = (
@@ -28,10 +28,6 @@ const createTeamProfile = (
   },
 });
 
-/* ---------------------------------------------------
-   NBA AND INTERNATIONAL CLUB PROFILES
---------------------------------------------------- */
-
 const TEAM_PROFILES = {
   ATL: createTeamProfile("Atlanta Hawks", 0.18, 0.22, 0.16, 0.14, 0.12, 0.18),
   BOS: createTeamProfile("Boston Celtics", 0.2, 0.18, 0.12, 0.14, 0.12, 0.24),
@@ -42,6 +38,7 @@ const TEAM_PROFILES = {
   DAL: createTeamProfile("Dallas Mavericks", 0.2, 0.2, 0.13, 0.16, 0.11, 0.2),
   DEN: createTeamProfile("Denver Nuggets", 0.22, 0.17, 0.1, 0.15, 0.12, 0.24),
   DET: createTeamProfile("Detroit Pistons", 0.22, 0.18, 0.12, 0.14, 0.13, 0.21),
+
   GSW: createTeamProfile(
     "Golden State Warriors",
     0.19,
@@ -51,8 +48,10 @@ const TEAM_PROFILES = {
     0.12,
     0.2
   ),
+
   HOU: createTeamProfile("Houston Rockets", 0.22, 0.16, 0.1, 0.17, 0.12, 0.23),
   IND: createTeamProfile("Indiana Pacers", 0.19, 0.2, 0.13, 0.15, 0.13, 0.2),
+
   LAC: createTeamProfile(
     "Los Angeles Clippers",
     0.2,
@@ -62,10 +61,12 @@ const TEAM_PROFILES = {
     0.11,
     0.22
   ),
+
   LAL: createTeamProfile("Los Angeles Lakers", 0.22, 0.2, 0.15, 0.14, 0.11, 0.18),
   MEM: createTeamProfile("Memphis Grizzlies", 0.2, 0.18, 0.12, 0.16, 0.13, 0.21),
   MIA: createTeamProfile("Miami Heat", 0.2, 0.19, 0.12, 0.15, 0.11, 0.23),
   MIL: createTeamProfile("Milwaukee Bucks", 0.21, 0.2, 0.11, 0.15, 0.11, 0.22),
+
   MIN: createTeamProfile(
     "Minnesota Timberwolves",
     0.21,
@@ -75,6 +76,7 @@ const TEAM_PROFILES = {
     0.12,
     0.23
   ),
+
   NOP: createTeamProfile(
     "New Orleans Pelicans",
     0.2,
@@ -84,7 +86,9 @@ const TEAM_PROFILES = {
     0.12,
     0.19
   ),
+
   NYK: createTeamProfile("New York Knicks", 0.2, 0.18, 0.11, 0.18, 0.12, 0.21),
+
   OKC: createTeamProfile(
     "Oklahoma City Thunder",
     0.18,
@@ -94,7 +98,9 @@ const TEAM_PROFILES = {
     0.14,
     0.26
   ),
+
   ORL: createTeamProfile("Orlando Magic", 0.26, 0.15, 0.1, 0.17, 0.11, 0.21),
+
   PHI: createTeamProfile(
     "Philadelphia 76ers",
     0.21,
@@ -104,7 +110,9 @@ const TEAM_PROFILES = {
     0.12,
     0.21
   ),
+
   PHX: createTeamProfile("Phoenix Suns", 0.18, 0.21, 0.16, 0.17, 0.12, 0.16),
+
   POR: createTeamProfile(
     "Portland Trail Blazers",
     0.21,
@@ -114,10 +122,12 @@ const TEAM_PROFILES = {
     0.13,
     0.21
   ),
+
   SAC: createTeamProfile("Sacramento Kings", 0.18, 0.22, 0.18, 0.15, 0.12, 0.15),
   SAS: createTeamProfile("San Antonio Spurs", 0.22, 0.18, 0.08, 0.17, 0.12, 0.23),
   TOR: createTeamProfile("Toronto Raptors", 0.21, 0.17, 0.15, 0.16, 0.12, 0.19),
   UTA: createTeamProfile("Utah Jazz", 0.18, 0.2, 0.13, 0.17, 0.12, 0.2),
+
   WAS: createTeamProfile(
     "Washington Wizards",
     0.18,
@@ -127,6 +137,7 @@ const TEAM_PROFILES = {
     0.13,
     0.19
   ),
+
   TRI: createTeamProfile(
     "Pallacanestro Trieste",
     0.12,
@@ -195,6 +206,16 @@ const normalizePercentage = (value) => {
     : number;
 };
 
+const safePerGame = (value, gamesPlayed) => {
+  const games = toNumber(gamesPlayed);
+
+  if (games <= 0) {
+    return 0;
+  }
+
+  return toNumber(value) / games;
+};
+
 const formatNumber = (value, decimals = 1) => {
   return toNumber(value).toFixed(decimals);
 };
@@ -212,10 +233,7 @@ const formatPlusMinus = (value) => {
 };
 
 const clamp = (value, minimum, maximum) => {
-  return Math.min(
-    Math.max(value, minimum),
-    maximum
-  );
+  return Math.min(Math.max(value, minimum), maximum);
 };
 
 const getMedian = (values) => {
@@ -228,15 +246,10 @@ const getMedian = (values) => {
     return 0;
   }
 
-  const middle = Math.floor(
-    sortedValues.length / 2
-  );
+  const middle = Math.floor(sortedValues.length / 2);
 
   return sortedValues.length % 2 === 0
-    ? (
-        sortedValues[middle - 1] +
-        sortedValues[middle]
-      ) / 2
+    ? (sortedValues[middle - 1] + sortedValues[middle]) / 2
     : sortedValues[middle];
 };
 
@@ -338,47 +351,36 @@ const TEAM_FIT_COLUMNS = [
   },
 ];
 
+/* ---------------------------------------------------
+   APP
+--------------------------------------------------- */
+
 function App() {
-  const [playerData, setPlayerData] =
-    useState([]);
+  const [playerData, setPlayerData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState("all");
+  const [selectedTeam, setSelectedTeam] = useState("SAC");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const [searchTerm, setSearchTerm] =
-    useState("");
+  const [sortConfig, setSortConfig] = useState({
+    key: "MSRAvg",
+    direction: "desc",
+  });
 
-  const [viewMode, setViewMode] =
-    useState("all");
-
-  const [selectedTeam, setSelectedTeam] =
-    useState("SAC");
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [error, setError] =
-    useState("");
-
-  const [sortConfig, setSortConfig] =
-    useState({
-      key: "MSRAvg",
-      direction: "desc",
-    });
-
-  const csvUrl =
-    `${process.env.PUBLIC_URL}/stt_msr.csv`;
+  const csvUrl = `${process.env.PUBLIC_URL}/stt_msr.csv`;
 
   /* ---------------------------------------------------
-     LOCAL DEVELOPMENT URL
+     KEEP GITHUB PAGES PATH
   --------------------------------------------------- */
 
   useEffect(() => {
-    const desiredPath =
-      "/2026-NBA-Summer-League";
+    const desiredPath = "/2026-NBA-Summer-League";
 
-    const currentPath =
-      window.location.pathname.replace(
-        /\/+$/,
-        ""
-      );
+    const currentPath = window.location.pathname.replace(
+      /\/+$/,
+      ""
+    );
 
     if (currentPath !== desiredPath) {
       window.history.replaceState(
@@ -401,9 +403,31 @@ function App() {
         setLoading(true);
         setError("");
 
-        const data = await d3.csv(
-          `${csvUrl}?updated=${Date.now()}`
+        const response = await fetch(
+          `${csvUrl}?updated=${Date.now()}`,
+          {
+            cache: "no-store",
+          }
         );
+
+        if (!response.ok) {
+          throw new Error(
+            `CSV request failed with status ${response.status}`
+          );
+        }
+
+        const csvText = await response.text();
+
+        if (
+          csvText.trim().startsWith("<!DOCTYPE html") ||
+          csvText.trim().startsWith("<html")
+        ) {
+          throw new Error(
+            "The CSV path returned an HTML page instead of CSV data."
+          );
+        }
+
+        const data = d3.csvParse(csvText);
 
         if (!active) {
           return;
@@ -441,14 +465,16 @@ function App() {
               ])
             );
 
-            const csvMSRAvg =
-              firstExistingValue(row, [
+            const csvMSRAvg = firstExistingValue(
+              row,
+              [
                 "MSR AVG",
                 "MSR Avg",
                 "MSR_AVG",
                 "MSR Average",
                 "MSRAvg",
-              ]);
+              ]
+            );
 
             const calculatedMSRAvg =
               gamesPlayed > 0
@@ -460,30 +486,67 @@ function App() {
                 ? toNumber(csvMSRAvg)
                 : calculatedMSRAvg;
 
+            const min = toNumber(
+              firstExistingValue(row, [
+                "Min",
+                "MIN",
+                "Minutes",
+              ])
+            );
+
+            const pts = toNumber(row.PTS);
+            const fgm = toNumber(row.FGM);
+            const fga = toNumber(row.FGA);
+
+            const threePTM = toNumber(
+              firstExistingValue(row, [
+                "3PTM",
+                "3PM",
+              ])
+            );
+
+            const threePA = toNumber(
+              firstExistingValue(row, [
+                "3PA",
+                "3PTA",
+              ])
+            );
+
+            const ftm = toNumber(row.FTM);
+            const fta = toNumber(row.FTA);
+            const oreb = toNumber(row.OREB);
+            const dreb = toNumber(row.DREB);
+            const reb = toNumber(row.REB);
+            const ast = toNumber(row.AST);
+            const tov = toNumber(row.TOV);
+            const stl = toNumber(row.STL);
+            const blk = toNumber(row.BLK);
+            const pf = toNumber(row.PF);
+
+            const plusMinus = toNumber(
+              firstExistingValue(row, [
+                "Plus Minus",
+                "+/-",
+                "PlusMinus",
+              ])
+            );
+
             return {
               Rank:
                 toNumber(row.Rank) ||
                 toNumber(row["Column 25"]) ||
                 index + 1,
 
-              Player:
-                String(playerName).trim(),
+              Player: String(playerName).trim(),
 
               GP: gamesPlayed,
               MSR: msrTotal,
               MSRAvg: msrAverage,
 
-              Min: toNumber(
-                firstExistingValue(row, [
-                  "Min",
-                  "MIN",
-                  "Minutes",
-                ])
-              ),
-
-              PTS: toNumber(row.PTS),
-              FGM: toNumber(row.FGM),
-              FGA: toNumber(row.FGA),
+              Min: min,
+              PTS: pts,
+              FGM: fgm,
+              FGA: fga,
 
               FGPct: normalizePercentage(
                 firstExistingValue(row, [
@@ -493,31 +556,19 @@ function App() {
                 ])
               ),
 
-              ThreePTM: toNumber(
+              ThreePTM: threePTM,
+              ThreePA: threePA,
+
+              ThreePct: normalizePercentage(
                 firstExistingValue(row, [
-                  "3PTM",
-                  "3PM",
+                  "3P%",
+                  "3PT%",
+                  "ThreePct",
                 ])
               ),
 
-              ThreePA: toNumber(
-                firstExistingValue(row, [
-                  "3PA",
-                  "3PTA",
-                ])
-              ),
-
-              ThreePct:
-                normalizePercentage(
-                  firstExistingValue(row, [
-                    "3P%",
-                    "3PT%",
-                    "ThreePct",
-                  ])
-                ),
-
-              FTM: toNumber(row.FTM),
-              FTA: toNumber(row.FTA),
+              FTM: ftm,
+              FTA: fta,
 
               FTPct: normalizePercentage(
                 firstExistingValue(row, [
@@ -527,22 +578,15 @@ function App() {
                 ])
               ),
 
-              OREB: toNumber(row.OREB),
-              DREB: toNumber(row.DREB),
-              REB: toNumber(row.REB),
-              AST: toNumber(row.AST),
-              TOV: toNumber(row.TOV),
-              STL: toNumber(row.STL),
-              BLK: toNumber(row.BLK),
-              PF: toNumber(row.PF),
-
-              PlusMinus: toNumber(
-                firstExistingValue(row, [
-                  "Plus Minus",
-                  "+/-",
-                  "PlusMinus",
-                ])
-              ),
+              OREB: oreb,
+              DREB: dreb,
+              REB: reb,
+              AST: ast,
+              TOV: tov,
+              STL: stl,
+              BLK: blk,
+              PF: pf,
+              PlusMinus: plusMinus,
 
               EuropeanArchetype:
                 String(
@@ -551,8 +595,101 @@ function App() {
                     "Archetype",
                   ]) || "—"
                 ).trim() || "—",
+
+              /* Per-game values used by the models */
+
+              MinPerGame: safePerGame(
+                min,
+                gamesPlayed
+              ),
+
+              PTSPerGame: safePerGame(
+                pts,
+                gamesPlayed
+              ),
+
+              FGMPerGame: safePerGame(
+                fgm,
+                gamesPlayed
+              ),
+
+              FGAPerGame: safePerGame(
+                fga,
+                gamesPlayed
+              ),
+
+              ThreePTMPerGame: safePerGame(
+                threePTM,
+                gamesPlayed
+              ),
+
+              ThreePAPerGame: safePerGame(
+                threePA,
+                gamesPlayed
+              ),
+
+              FTMPerGame: safePerGame(
+                ftm,
+                gamesPlayed
+              ),
+
+              FTAPerGame: safePerGame(
+                fta,
+                gamesPlayed
+              ),
+
+              OREBPerGame: safePerGame(
+                oreb,
+                gamesPlayed
+              ),
+
+              DREBPerGame: safePerGame(
+                dreb,
+                gamesPlayed
+              ),
+
+              REBPerGame: safePerGame(
+                reb,
+                gamesPlayed
+              ),
+
+              ASTPerGame: safePerGame(
+                ast,
+                gamesPlayed
+              ),
+
+              TOVPerGame: safePerGame(
+                tov,
+                gamesPlayed
+              ),
+
+              STLPerGame: safePerGame(
+                stl,
+                gamesPlayed
+              ),
+
+              BLKPerGame: safePerGame(
+                blk,
+                gamesPlayed
+              ),
+
+              PFPerGame: safePerGame(
+                pf,
+                gamesPlayed
+              ),
+
+              PlusMinusPerGame: safePerGame(
+                plusMinus,
+                gamesPlayed
+              ),
             };
           });
+
+        if (!cleanedData.length) {
+          throw new Error(
+            "The CSV loaded, but no valid Player or Name rows were found."
+          );
+        }
 
         setPlayerData(cleanedData);
       } catch (csvError) {
@@ -562,6 +699,8 @@ function App() {
         );
 
         if (active) {
+          setPlayerData([]);
+
           setError(
             "Unable to load stt_msr.csv. Confirm that the file is inside the public folder and named exactly stt_msr.csv."
           );
@@ -581,7 +720,7 @@ function App() {
   }, [csvUrl]);
 
   /* ---------------------------------------------------
-     DATASET BENCHMARKS
+     PER-GAME BENCHMARKS
   --------------------------------------------------- */
 
   const benchmarks = useMemo(
@@ -592,21 +731,21 @@ function App() {
         )
       ),
 
-      medianPTS: getMedian(
+      medianPTSPerGame: getMedian(
         playerData.map(
-          (player) => player.PTS
+          (player) => player.PTSPerGame
         )
       ),
 
-      medianMin: getMedian(
+      medianMinPerGame: getMedian(
         playerData.map(
-          (player) => player.Min
+          (player) => player.MinPerGame
         )
       ),
 
-      medianFGA: getMedian(
+      medianFGAPerGame: getMedian(
         playerData.map(
-          (player) => player.FGA
+          (player) => player.FGAPerGame
         )
       ),
     }),
@@ -627,14 +766,14 @@ function App() {
         (player) => player.MSRAvg
       );
 
-    const pointsValues =
+    const pointsPerGameValues =
       playerData.map(
-        (player) => player.PTS
+        (player) => player.PTSPerGame
       );
 
-    const shotValues =
+    const shotsPerGameValues =
       playerData.map(
-        (player) => player.FGA
+        (player) => player.FGAPerGame
       );
 
     return playerData.map((player) => {
@@ -646,33 +785,35 @@ function App() {
 
       const scoringPercentile =
         getPercentileRank(
-          player.PTS,
-          pointsValues
+          player.PTSPerGame,
+          pointsPerGameValues
         );
 
       const shotVolumePercentile =
         getPercentileRank(
-          player.FGA,
-          shotValues
+          player.FGAPerGame,
+          shotsPerGameValues
         );
 
       const fieldGoalEfficiency =
-        player.FGA > 0
-          ? player.FGM / player.FGA
+        player.FGAPerGame > 0
+          ? player.FGMPerGame /
+            player.FGAPerGame
           : 0;
 
       const assistTurnoverRatio =
-        player.TOV > 0
-          ? player.AST / player.TOV
-          : player.AST;
+        player.TOVPerGame > 0
+          ? player.ASTPerGame /
+            player.TOVPerGame
+          : player.ASTPerGame;
 
       const allAroundContribution =
-        player.REB * 0.8 +
-        player.AST * 1.1 +
-        player.STL * 2 +
-        player.BLK * 1.8 +
+        player.REBPerGame * 0.8 +
+        player.ASTPerGame * 1.1 +
+        player.STLPerGame * 2 +
+        player.BLKPerGame * 1.8 +
         Math.max(
-          player.PlusMinus,
+          player.PlusMinusPerGame,
           0
         ) * 0.25;
 
@@ -698,17 +839,41 @@ function App() {
         scoringPercentile * 0.55 -
         shotVolumePercentile * 0.25;
 
+      /*
+       Small reliability bonus:
+       GP 1 = 0
+       GP 2 = 1.5
+       GP 3 = 3
+       GP 4+ capped at 4.5
+      */
+
+      const sampleReliabilityBonus =
+        clamp(
+          (player.GP - 1) * 1.5,
+          0,
+          4.5
+        );
+
       const hiddenGemScore =
         attentionGap * 100 +
         allAroundContribution +
         efficiencyAdjustment +
-        playmakingAdjustment;
+        playmakingAdjustment +
+        sampleReliabilityBonus;
 
-      const minimumMinutes =
+      const minimumMinutesPerGame =
         Math.max(
           10,
-          benchmarks.medianMin * 0.65
+          benchmarks.medianMinPerGame *
+            0.65
         );
+
+      const lowOrModerateUsage =
+        player.PTSPerGame <=
+          benchmarks.medianPTSPerGame *
+            1.35 ||
+        player.FGAPerGame <=
+          benchmarks.medianFGAPerGame;
 
       return {
         ...player,
@@ -718,16 +883,11 @@ function App() {
 
         IsHiddenGem:
           player.GP >= 1 &&
-          player.Min >= minimumMinutes &&
+          player.MinPerGame >=
+            minimumMinutesPerGame &&
           player.MSRAvg >=
             benchmarks.medianMSRAvg &&
-          (
-            player.PTS <=
-              benchmarks.medianPTS *
-                1.35 ||
-            player.FGA <=
-              benchmarks.medianFGA
-          ) &&
+          lowOrModerateUsage &&
           hiddenGemScore > 5,
       };
     });
@@ -737,7 +897,7 @@ function App() {
   ]);
 
   /* ---------------------------------------------------
-     TEAM AND CLUB FITS
+     TEAM AND CLUB FIT
   --------------------------------------------------- */
 
   const teamFitPlayers = useMemo(() => {
@@ -766,37 +926,59 @@ function App() {
         (player) => player.ThreePct
       ),
 
-      ThreePTM: analyzedPlayers.map(
-        (player) => player.ThreePTM
-      ),
+      ThreePTMPerGame:
+        analyzedPlayers.map(
+          (player) =>
+            player.ThreePTMPerGame
+        ),
 
-      AST: analyzedPlayers.map(
-        (player) => player.AST
-      ),
+      ASTPerGame:
+        analyzedPlayers.map(
+          (player) =>
+            player.ASTPerGame
+        ),
 
-      STL: analyzedPlayers.map(
-        (player) => player.STL
-      ),
+      STLPerGame:
+        analyzedPlayers.map(
+          (player) =>
+            player.STLPerGame
+        ),
 
-      BLK: analyzedPlayers.map(
-        (player) => player.BLK
-      ),
+      BLKPerGame:
+        analyzedPlayers.map(
+          (player) =>
+            player.BLKPerGame
+        ),
 
-      REB: analyzedPlayers.map(
-        (player) => player.REB
-      ),
+      REBPerGame:
+        analyzedPlayers.map(
+          (player) =>
+            player.REBPerGame
+        ),
 
-      PlusMinus: analyzedPlayers.map(
-        (player) => player.PlusMinus
-      ),
+      OREBPerGame:
+        analyzedPlayers.map(
+          (player) =>
+            player.OREBPerGame
+        ),
 
-      PTS: analyzedPlayers.map(
-        (player) => player.PTS
-      ),
+      PlusMinusPerGame:
+        analyzedPlayers.map(
+          (player) =>
+            player.PlusMinusPerGame
+        ),
 
-      FGA: analyzedPlayers.map(
-        (player) => player.FGA
-      ),
+      PTSPerGame:
+        analyzedPlayers.map(
+          (player) =>
+            player.PTSPerGame
+        ),
+
+      FGAPerGame:
+        analyzedPlayers.map(
+          (player) =>
+            player.FGAPerGame
+        ),
     };
 
     return analyzedPlayers
@@ -807,8 +989,8 @@ function App() {
             dataset.ThreePct
           ) * 0.45 +
           getPercentileRank(
-            player.ThreePTM,
-            dataset.ThreePTM
+            player.ThreePTMPerGame,
+            dataset.ThreePTMPerGame
           ) * 0.35 +
           getPercentileRank(
             player.FGPct,
@@ -817,33 +999,34 @@ function App() {
 
         const perimeterDefense =
           getPercentileRank(
-            player.STL,
-            dataset.STL
+            player.STLPerGame,
+            dataset.STLPerGame
           ) * 0.6 +
           getPercentileRank(
-            player.PlusMinus,
-            dataset.PlusMinus
+            player.PlusMinusPerGame,
+            dataset.PlusMinusPerGame
           ) * 0.4;
 
         const rimProtection =
           getPercentileRank(
-            player.BLK,
-            dataset.BLK
+            player.BLKPerGame,
+            dataset.BLKPerGame
           ) * 0.65 +
           getPercentileRank(
-            player.REB,
-            dataset.REB
+            player.REBPerGame,
+            dataset.REBPerGame
           ) * 0.35;
 
         const assistTurnoverRatio =
-          player.TOV > 0
-            ? player.AST / player.TOV
-            : player.AST;
+          player.TOVPerGame > 0
+            ? player.ASTPerGame /
+              player.TOVPerGame
+            : player.ASTPerGame;
 
         const playmaking =
           getPercentileRank(
-            player.AST,
-            dataset.AST
+            player.ASTPerGame,
+            dataset.ASTPerGame
           ) * 0.65 +
           Math.min(
             assistTurnoverRatio / 4,
@@ -852,9 +1035,13 @@ function App() {
 
         const rebounding =
           getPercentileRank(
-            player.REB,
-            dataset.REB
-          );
+            player.REBPerGame,
+            dataset.REBPerGame
+          ) * 0.7 +
+          getPercentileRank(
+            player.OREBPerGame,
+            dataset.OREBPerGame
+          ) * 0.3;
 
         const impactPercentile =
           getPercentileRank(
@@ -864,22 +1051,25 @@ function App() {
 
         const scoringPercentile =
           getPercentileRank(
-            player.PTS,
-            dataset.PTS
+            player.PTSPerGame,
+            dataset.PTSPerGame
           );
 
         const shotVolumePercentile =
           getPercentileRank(
-            player.FGA,
-            dataset.FGA
+            player.FGAPerGame,
+            dataset.FGAPerGame
           );
 
         const lowUsageImpact =
-          Math.max(
-            0,
+          clamp(
             impactPercentile -
-              scoringPercentile * 0.35 -
-              shotVolumePercentile * 0.25
+              scoringPercentile *
+                0.35 -
+              shotVolumePercentile *
+                0.25,
+            0,
+            1
           );
 
         const categoryScores = {
@@ -891,7 +1081,7 @@ function App() {
           lowUsageImpact,
         };
 
-        const teamFitScore =
+        const weightedFit =
           Object.entries(
             profile.needs
           ).reduce(
@@ -908,6 +1098,26 @@ function App() {
                 toNumber(weight),
             0
           );
+
+        /*
+         Small sample confidence:
+         GP 1 = 0.97
+         GP 2 = 0.985
+         GP 3+ = 1.00
+        */
+
+        const reliabilityMultiplier =
+          clamp(
+            0.955 +
+              player.GP * 0.015,
+            0.97,
+            1
+          );
+
+        const teamFitScore =
+          weightedFit *
+          reliabilityMultiplier *
+          100;
 
         const teamFitReasons =
           Object.entries(
@@ -946,7 +1156,7 @@ function App() {
           ...player,
 
           TeamFitScore:
-            teamFitScore * 100,
+            teamFitScore,
 
           TeamFitReasons:
             teamFitReasons,
@@ -1606,10 +1816,12 @@ function App() {
         "hidden" && (
         <div className="view-description">
           Under-the-radar players whose
-          average overall statistical
+          per-game overall statistical
           profiles may deserve more
           attention than their scoring
-          volume alone suggests.
+          volume alone suggests. Players
+          are not penalized for having
+          played additional games.
         </div>
       )}
 
@@ -1617,15 +1829,18 @@ function App() {
         "teamFit" && (
         <div className="view-description">
           Ranking players by how closely
-          their statistical profiles align
-          with{" "}
+          their per-game statistical
+          profiles align with{" "}
           <strong>
             {selectedTeamName}
           </strong>{" "}
           roster priorities for{" "}
-          {selectedTeamType}. Basketball fit
-          does not imply that a player is
-          available, unsigned, or obtainable.
+          {selectedTeamType}. Games played
+          provide only a small sample-size
+          confidence adjustment. Basketball
+          fit does not imply that a player
+          is available, unsigned, or
+          obtainable.
         </div>
       )}
 
@@ -1730,9 +1945,6 @@ function App() {
 }
 
 export default App;
-
-
-
 
 
 
