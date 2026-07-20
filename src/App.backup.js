@@ -1843,7 +1843,7 @@ function App() {
               )
             }
           >
-            💎 Hidden Gems
+            ðŸ’Ž Hidden Gems
           </button>
 
 
@@ -1860,7 +1860,7 @@ function App() {
               )
             }
           >
-            🏀 Team & Club Fits
+            ðŸ€ Team & Club Fits
           </button>
         </div>
 
@@ -2112,5 +2112,4 @@ function App() {
 
 
 export default App;
-
 
