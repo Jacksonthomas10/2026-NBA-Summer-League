@@ -1,6 +1,7 @@
 ﻿import React, { useEffect, useMemo, useState } from "react";
 import * as d3 from "d3";
 import "./App.css";
+import progress from "./player-progress.json";
 
 
 /* ---------------------------------------------------
@@ -1776,6 +1777,12 @@ function App() {
   --------------------------------------------------- */
 
 
+  const isProgress = viewMode === "progress";
+  const progressRows = progress.filter(({ name, team, league }) =>
+    [name, team, league].some(value => value.toLowerCase().includes(searchTerm.trim().toLowerCase()))
+  );
+  const playerCount = isProgress ? progressRows.length : displayedData.length;
+
   return (
     <div className="app-container fade-in">
       <header className="app-header">
@@ -1793,7 +1800,8 @@ function App() {
           <input
             type="text"
             className="search-bar"
-            placeholder="Search player or archetype..."
+            aria-label={isProgress ? "Search progress reports" : "Search players"}
+            placeholder={isProgress ? "Search player, team or league..." : "Search player or archetype..."}
             value={searchTerm}
             onChange={(event) =>
               setSearchTerm(
@@ -1804,8 +1812,8 @@ function App() {
 
 
           <div className="player-count">
-            {displayedData.length}{" "}
-            {displayedData.length === 1
+            {playerCount}{" "}
+            {playerCount === 1
               ? "player"
               : "players"}
           </div>
@@ -1861,6 +1869,11 @@ function App() {
             }
           >
             🏀 Team & Club Fits
+          </button>
+          <button type="button" aria-pressed={isProgress}
+            className={isProgress ? "view-button active" : "view-button"}
+            onClick={() => handleViewChange("progress")}>
+            Progress Report
           </button>
         </div>
 
@@ -1972,6 +1985,27 @@ function App() {
       </div>
 
 
+      {isProgress ? (
+        <section aria-label="Summer League progress report">
+          <h2>Summer League progress report</h2>
+          <p>November 25, 2026 · Original ten-player hidden gems watchlist</p>
+          {progressRows.length ? (
+            <div className="table-container">
+              <table className="leaderboard-table">
+                <thead><tr>{["July rank", "Player", "SL GP", "July MSR", "Current team", "League", "Role / status", "Progress", "Sample", "Source"].map(label => <th scope="col" key={label}>{label}</th>)}</tr></thead>
+                <tbody>{progressRows.map(row => (
+                  <tr key={row.name}>
+                    <td>{row.rank}</td><td>{row.name}</td><td>{row.games}</td><td>{row.msr.toFixed(2)}</td>
+                    <td>{row.team}</td><td>{row.league}</td><td>{row.role}</td>
+                    <td>{row.evidence}</td><td>{row.sample}</td>
+                    <td><a style={{color: "#79cfff"}} href={row.source} target="_blank" rel="noreferrer">Source</a></td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
+          ) : <p>No matching players.</p>}
+        </section>
+      ) : (<>
       {viewMode ===
         "hidden" && (
         <div className="view-description">
@@ -2106,6 +2140,7 @@ function App() {
             </table>
           </div>
         )}
+      </>)}
     </div>
   );
 }
