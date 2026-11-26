@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import * as d3 from "d3";
 import "./App.css";
 import progress from "./player-progress.json";
@@ -1988,17 +1988,18 @@ function App() {
       {isProgress ? (
         <section aria-label="Summer League progress report">
           <h2>Summer League progress report</h2>
-          <p>November 25, 2026 · Original ten-player hidden gems watchlist</p>
+          <p>November 25, 2026 · {progress.length} players · {progress.filter(row => row.source).length} sourced follow-ups. Team and league refer to the cited appearance or event.</p>
+          <p>Paired July values preserve separate CSV entries for the same player. Season averages use the listed sample. Pending review means a post-summer update is still unconfirmed.</p>
           {progressRows.length ? (
             <div className="table-container">
               <table className="leaderboard-table">
-                <thead><tr>{["July rank", "Player", "SL GP", "July MSR", "Current team", "League", "Role / status", "Progress", "Sample", "Source"].map(label => <th scope="col" key={label}>{label}</th>)}</tr></thead>
+                <thead><tr>{["CSV rank", "Player", "Hidden gem rank", "SL GP", "July MSR", "Reported team", "League", "Role / status", "Progress", "Sample", "Source"].map(label => <th scope="col" key={label}>{label}</th>)}</tr></thead>
                 <tbody>{progressRows.map(row => (
                   <tr key={row.name}>
-                    <td>{row.rank}</td><td>{row.name}</td><td>{row.games}</td><td>{row.msr.toFixed(2)}</td>
+                    <td>{row.rank}</td><td>{row.name}</td><td>{row.gem || "—"}</td><td>{row.games}</td><td>{row.msr}</td>
                     <td>{row.team}</td><td>{row.league}</td><td>{row.role}</td>
                     <td>{row.evidence}</td><td>{row.sample}</td>
-                    <td><a style={{color: "#79cfff"}} href={row.source} target="_blank" rel="noreferrer">Source</a></td>
+                    <td>{row.source ? <a style={{color: "#79cfff"}} href={row.source} target="_blank" rel="noreferrer">Source</a> : "—"}</td>
                   </tr>
                 ))}</tbody>
               </table>
