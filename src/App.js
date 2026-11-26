@@ -9,6 +9,22 @@ import progress from "./player-progress.json";
 --------------------------------------------------- */
 
 
+const progressColumns = [["rank", "CSV rank"], ["name", "Player"], ["gem", "Hidden gem rank"], ["games", "SL GP"], ["msr", "July MSR"], ["team", "Reported team"], ["league", "League"], ["role", "Role / status"], ["evidence", "Progress"], ["sample", "Sample"], ["source", "Source"]];
+const progressCollator = new Intl.Collator("en", { sensitivity: "base", numeric: true });
+const numericProgressKeys = new Set(["rank", "gem", "games", "msr"]);
+
+function compareProgressRows(left, right, key, direction) {
+  const a = left[key];
+  const b = right[key];
+  const missingA = a == null || a === "" || a === "—";
+  const missingB = b == null || b === "" || b === "—";
+  if (missingA || missingB) return Number(missingA) - Number(missingB);
+  const order = numericProgressKeys.has(key)
+    ? parseFloat(a) - parseFloat(b)
+    : progressCollator.compare(String(a), String(b));
+  return direction === "ascending" ? order : -order;
+}
+
 const createTeamProfile = (
   name,
   shooting,
@@ -407,6 +423,7 @@ const TEAM_FIT_COLUMNS = [
 
 function App() {
   const [playerData, setPlayerData] = useState([]);
+  const [progressSort, setProgressSort] = useState({ key: "rank", direction: "ascending" });
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState("all");
   const [selectedTeam, setSelectedTeam] = useState("SAC");
@@ -1780,7 +1797,7 @@ function App() {
   const isProgress = viewMode === "progress";
   const progressRows = progress.filter(({ name, team, league }) =>
     [name, team, league].some(value => value.toLowerCase().includes(searchTerm.trim().toLowerCase()))
-  );
+  ).sort((a, b) => compareProgressRows(a, b, progressSort.key, progressSort.direction));
   const playerCount = isProgress ? progressRows.length : displayedData.length;
 
   return (
@@ -1993,7 +2010,20 @@ function App() {
           {progressRows.length ? (
             <div className="table-container">
               <table className="leaderboard-table">
-                <thead><tr>{["CSV rank", "Player", "Hidden gem rank", "SL GP", "July MSR", "Reported team", "League", "Role / status", "Progress", "Sample", "Source"].map(label => <th scope="col" key={label}>{label}</th>)}</tr></thead>
+                <thead><tr>{progressColumns.map(([key, label]) => {
+                  const active = progressSort.key === key;
+                  return (
+                    <th scope="col" key={key} aria-sort={active ? progressSort.direction : undefined}>
+                      <button type="button" style={{ background: "transparent", border: 0, padding: 0, color: "inherit", font: "inherit", cursor: "pointer" }}
+                        onClick={() => setProgressSort(previous => ({
+                          key,
+                          direction: previous.key === key && previous.direction === "ascending" ? "descending" : "ascending"
+                        }))}>
+                        {label} <span aria-hidden="true">{active ? (progressSort.direction === "ascending" ? "▲" : "▼") : "↕"}</span>
+                      </button>
+                    </th>
+                  );
+                })}</tr></thead>
                 <tbody>{progressRows.map(row => (
                   <tr key={row.name}>
                     <td>{row.rank}</td><td>{row.name}</td><td>{row.gem || "—"}</td><td>{row.games}</td><td>{row.msr}</td>
